@@ -31,3 +31,11 @@
 *.bin
 *.out
 *.app
+
+# VS Code config directory
+.vscode/
+
+# Compiled executables
+svgtopng
+test
+xmldump
