@@ -42,3 +42,6 @@
 svgtopng
 test
 xmldump
+
+# The output folder
+output/

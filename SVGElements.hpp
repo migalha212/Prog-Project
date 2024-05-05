@@ -5,6 +5,7 @@
 #include "Color.hpp"
 #include "Point.hpp"
 #include "PNGImage.hpp"
+#include <vector>
 
 namespace svg
 {
@@ -38,5 +39,63 @@ namespace svg
         Point center;
         Point radius;
     };
+    
+    // class Circle : public Ellipse
+    // {
+    // public:
+    //     Circle(const Color &fill, const Point &center, const Point &radius);
+    //     void draw(PNGImage &img) const override;
+    // private:
+    // };
+    class Circle : public SVGElement
+    {
+    public:
+        Circle(const Point &center, int radius, const Color &fill);
+        void draw(PNGImage &img) const override;
+    private:
+        Point center;
+        int radius;
+        Color fill;
+    };
+    class Polyline : public SVGElement
+    {
+    public:
+        Polyline(const std::vector<Point> &points, const Color &stroke);
+        void draw(PNGImage &img) const override;
+    private:
+        std::vector<Point> points;
+        Color stroke;
+    };
+    class Line : public SVGElement
+    {
+    public:
+        Line(const Point &start, const Point &end, const Color &stroke);
+        void draw(PNGImage &img) const override;
+    private:
+        Point start;
+        Point end;
+        Color stroke;   
+    };
+    class Polygon : public SVGElement
+    {
+    public:
+        Polygon(const std::vector<Point> &points, const Color &fill);
+        void draw(PNGImage &img) const override;
+    private:
+        std::vector<Point> points;
+        Color fill;
+    };
+    class Rect : public SVGElement
+    {
+    public:
+        Rect(const Point &position, int width, int height, const Color &fill);
+        void draw(PNGImage & img) const override;
+    private:
+        Point position;
+        int width;
+        int height;
+        Color fill;
+    };
+    
 }
 #endif
