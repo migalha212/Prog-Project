@@ -259,9 +259,9 @@ namespace svg
         : fill(fill)
     {
         points = {position,
-                  {position.x,              position.y + height - 1},
+                  {position.x + width - 1,  position.y},
                   {position.x + width - 1,  position.y + height - 1},
-                  {position.x + width - 1,  position.y}};
+                  {position.x,              position.y + height - 1}};
     }
     void Rect::draw(PNGImage &img) const
     {
