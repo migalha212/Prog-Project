@@ -9,6 +9,7 @@
 
 namespace svg
 {
+    Point parsePoint(const std::string &str);
     class SVGElement
     {
 

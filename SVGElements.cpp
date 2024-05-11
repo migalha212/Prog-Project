@@ -2,6 +2,44 @@
 #include <sstream>
 namespace svg
 {
+
+    Point parsePoint(const std::string &str)
+    {
+        int x = 0, y = 0;
+        unsigned int i = 0;
+        bool negative = false;
+        if (str[0] == '-')
+        {
+            negative = true;
+            i++;
+        }
+            
+        while (str[i] != ' ' && str[i] != ',')
+        {
+            x *= 10;
+            x += str[i] - '0';
+            i++;
+        }
+        if (negative)
+            x = -x;
+        negative = false;
+        while (str[i] == ' ' || str[i] == ',')
+            i++;
+        if (str[i] == '-')
+        {
+            negative = true;
+            i++;
+        }
+        while (i < str.length())
+        {
+            y *= 10;
+            y += str[i] - '0';
+            i++;
+        }
+        if (negative)
+            y = -y;
+        return {x, y};
+    }
     // These must be defined!
     SVGElement::SVGElement() {}
     SVGElement::~SVGElement() {}
@@ -39,10 +77,8 @@ namespace svg
         {
             std::string str = operation.substr(10, 12); // assuming we won't get a string longer that "-9999, -9999)"
             str.erase(str.length() - 1);                // remove the bracket
-            std::istringstream iss(str);
-            int x = 0, y = 0;
-            iss >> x >> y;
-            center = center.translate({x,y});
+            Point offset = parsePoint(str);
+            center = center.translate(offset);
         }
     }
     /////
@@ -78,10 +114,8 @@ namespace svg
         {
             std::string str = operation.substr(10, 12); // assuming we won't get a string longer that "-9999, -9999)"
             str.erase(str.length() - 1);                // remove the bracket
-            std::istringstream iss(str);
-            int x = 0, y = 0;
-            iss >> x >> y;
-            center = center.translate({x,y});
+            Point offset = parsePoint(str);
+            center = center.translate(offset);
         }
     }
     /////
@@ -127,12 +161,10 @@ namespace svg
         {
             std::string str = operation.substr(10, 12); // assuming we won't get a string longer that "-9999, -9999)"
             str.erase(str.length() - 1);                // remove the bracket
-            std::istringstream iss(str);
-            int x = 0, y = 0;
-            iss >> x >> y;
+            Point offset = parsePoint(str);
             for (Point &point : points)
             {
-                point = point.translate({x, y});
+                point = point.translate(offset);
             }
         }
     }
@@ -170,11 +202,9 @@ namespace svg
         {
             std::string str = operation.substr(10, 12); // assuming we won't get a string longer that "-9999, -9999)"
             str.erase(str.length() - 1);                // remove the bracket
-            std::istringstream iss(str);
-            int x = 0, y = 0;
-            iss >> x >> y;
-            start = start.translate({x, y});
-            end = end.translate({x, y});
+            Point offset = parsePoint(str);
+            start = start.translate(offset);
+            end = end.translate(offset);
         }
     }
     /////
@@ -214,12 +244,10 @@ namespace svg
         {
             std::string str = operation.substr(10, 12); // assuming we won't get a string longer that "-9999, -9999)"
             str.erase(str.length() - 1);                // remove the bracket
-            std::istringstream iss(str);
-            int x = 0, y = 0;
-            iss >> x >> y;
+            Point offset = parsePoint(str);
             for (Point &point : points)
             {
-                point = point.translate({x, y});
+                point = point.translate(offset);
             }
         }
     }
@@ -231,9 +259,9 @@ namespace svg
         : fill(fill)
     {
         points = {position,
-                  {position.x, position.y + height - 1},
-                  {position.x + width - 1, position.y + height - 1},
-                  {position.x + width - 1, position.y}};
+                  {position.x,              position.y + height - 1},
+                  {position.x + width - 1,  position.y + height - 1},
+                  {position.x + width - 1,  position.y}};
     }
     void Rect::draw(PNGImage &img) const
     {
@@ -267,12 +295,10 @@ namespace svg
         {
             std::string str = operation.substr(10, 12); // assuming we won't get a string longer that "-9999, -9999)"
             str.erase(str.length() - 1);                // remove the bracket
-            std::istringstream iss(str);
-            int x = 0, y = 0;
-            iss >> x >> y;
+            Point offset = parsePoint(str);
             for (Point &point : points)
             {
-                point = point.translate({x, y});
+                point = point.translate(offset);
             }
         }
     }

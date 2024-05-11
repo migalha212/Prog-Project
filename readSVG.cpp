@@ -36,32 +36,7 @@ namespace svg
             // to later apply to the newElement when we know what type
             // it is and when it's already has been initialized
             /////
-            std::string operation;
-            Point origin = {0, 0};
-            if (child->Attribute("transform"))
-                operation = child->Attribute("transform");
             
-            if (child->Attribute("transform-origin"))
-            {
-                std::string str = child->Attribute("transform-origin");
-                int x = 0;
-                int y = 0;
-                unsigned int i = 0;
-                while (str[i] != ' ')
-                {
-                    x *= 10;
-                    x += str[i] - '0';
-                    i++;
-                }
-                i++;
-                while (i < str.length())
-                {
-                    y *= 10;
-                    y += str[i] - '0';
-                    i++;
-                }
-                origin = {x, y};
-            }
             /////
             if (childName == "ellipse")
             {
@@ -179,8 +154,18 @@ namespace svg
                 Color fill = parse_color(child->Attribute("fill")); 
                 newElement = new Rect(position, width, height, fill);
             }
-            if(child->Attribute("transform"))
+            
+            std::string operation;
+            Point origin = {0, 0};
+            if (child->Attribute("transform-origin"))
+            {
+                origin = parsePoint(child->Attribute("transform-origin"));
+            }
+            if (child->Attribute("transform"))
+            {
+                operation = child->Attribute("transform");
                 newElement->transform(operation, origin);
+            }
             svg_elements.push_back(newElement);
         }
         
