@@ -1,6 +1,7 @@
 #include "SVGElements.hpp"
 // #include <sstream>
 #include <string>
+#include <map>
 using namespace std;
 using namespace tinyxml2;
 namespace svg
@@ -43,11 +44,18 @@ namespace svg
             y = -y;
         return {x, y};
     }
+    SVGElement* use(XMLElement *xml_elem, map<string, SVGElement*> &idMap)
+    {
+        string href = xml_elem->Attribute("href");
+        href.erase(0, 1);
+        SVGElement *newElement = idMap[href]->copy();
+        return newElement;
+    }
     // These must be defined!
     SVGElement::SVGElement() {}
     SVGElement::~SVGElement() {}
 
-    Group::Group(XMLElement *xml_elem)
+    Group::Group(XMLElement *xml_elem, map<string, SVGElement*> &idMap)
     {
         for (XMLElement *child = xml_elem->FirstChildElement(); child != nullptr; child = child->NextSiblingElement())
         {
@@ -55,31 +63,35 @@ namespace svg
             SVGElement *newElement;
             if (childName == "ellipse")
             {
-                newElement = new Ellipse(child);
+                newElement = new Ellipse(child, idMap);
             }
             else if (childName == "circle")
             {
-                newElement = new Circle(child);
+                newElement = new Circle(child, idMap);
             }
             else if (childName == "polyline")
             {
-                newElement = new Polyline(child);
+                newElement = new Polyline(child, idMap);
             }
             else if (childName == "line")
             { 
-                newElement = new Line(child);
+                newElement = new Line(child, idMap);
             }
             else if (childName == "polygon")
             {
-                newElement = new Polygon(child);
+                newElement = new Polygon(child, idMap);
             }
             else if (childName == "rect")
             { 
-                newElement = new Rect(child);
+                newElement = new Rect(child, idMap);
             }
             else if (childName == "g")
             {
-                newElement = new Group(child);
+                newElement = new Group(child, idMap);
+            }
+            else if (childName == "use")
+            {
+                newElement = use(child, idMap);
             }
             std::string operation;
             Point origin = {0, 0};
@@ -92,8 +104,16 @@ namespace svg
                 operation = child->Attribute("transform");
                 newElement->transform(operation, origin);
             }
+            if (child->Attribute("id"))
+            {
+                string id = child->Attribute("id");
+                idMap[id] = newElement;
+            }   
             elements.push_back(newElement);
         }
+    }
+    Group::Group(const vector<SVGElement*> &elements) : elements(elements)
+    {
     }
     Group::~Group()
     {
@@ -118,13 +138,28 @@ namespace svg
             elem->transform(operation, origin);
         }
     }
+    SVGElement* Group::copy()
+    {
+        std::vector<SVGElement*> newElements;
+        for(SVGElement *elem : elements)
+        {
+            newElements.push_back(elem->copy());
+        }
+        return new Group(newElements);
+    }
     // TODO:
     // Replace stoi() with XMLElement's methods for getting int attributes
-    Ellipse::Ellipse(XMLElement *xml_elem)
+    Ellipse::Ellipse(XMLElement *xml_elem, map<string, SVGElement*> &idMap)
     {
         center = {stoi(xml_elem->Attribute("cx")), stoi(xml_elem->Attribute("cy"))};
         radius = {stoi(xml_elem->Attribute("rx")), stoi(xml_elem->Attribute("ry"))};
         fill = parse_color(xml_elem->Attribute("fill"));
+    }
+    Ellipse::Ellipse(const Color &fill,
+                     const Point &center,
+                     const Point &radius)
+        : fill(fill), center(center), radius(radius)
+    {
     }
     void Ellipse::draw(PNGImage &img) const
     {
@@ -156,12 +191,22 @@ namespace svg
             center = center.translate(offset);
         }
     }
+    SVGElement* Ellipse::copy()
+    {
+        return new Ellipse(fill, center, radius);
+    }
     /////
-    Circle::Circle(XMLElement *xml_elem)
+    Circle::Circle(XMLElement *xml_elem, map<string, SVGElement*> &idMap)
     {
         center = {stoi(xml_elem->Attribute("cx")), stoi(xml_elem->Attribute("cy"))};
         radius = stoi(xml_elem->Attribute("r"));
         fill = parse_color(xml_elem->Attribute("fill"));
+    }
+    Circle::Circle(const Point &center,
+                   int radius,
+                   const Color &fill)
+        : center(center), radius(radius), fill(fill)
+    {
     }
     void Circle::draw(PNGImage &img) const
     {
@@ -193,8 +238,12 @@ namespace svg
             center = center.translate(offset);
         }
     }
+    SVGElement* Circle::copy()
+    {
+        return new Circle(center, radius, fill);
+    }
     /////
-    Polyline::Polyline(XMLElement *xml_elem)
+    Polyline::Polyline(XMLElement *xml_elem, map<string, SVGElement*> &idMap)
     {
         string str = xml_elem->Attribute("points");
         int x = 0, y = 0;
@@ -234,6 +283,11 @@ namespace svg
         }
         points.push_back({x, y});
         stroke = parse_color(xml_elem->Attribute("stroke"));
+    }
+    Polyline::Polyline(const std::vector<Point> &points,
+                       const Color &stroke)
+        : points(points), stroke(stroke)
+    {
     }
     void Polyline::draw(PNGImage &img) const
     {
@@ -279,12 +333,22 @@ namespace svg
             }
         }
     }
+    SVGElement* Polyline::copy()
+    {
+        return new Polyline(points, stroke);
+    }
     /////
-    Line::Line(XMLElement *xml_elem)
+    Line::Line(XMLElement *xml_elem, map<string, SVGElement*> &idMap)
     {
         start = {stoi(xml_elem->Attribute("x1")), stoi(xml_elem->Attribute("y1"))};
         end = {stoi(xml_elem->Attribute("x2")), stoi(xml_elem->Attribute("y2"))};
         stroke = parse_color(xml_elem->Attribute("stroke"));
+    }
+    Line::Line(const Point &start,
+               const Point &end,
+               const Color &stroke)
+        : start(start), end(end), stroke(stroke)
+    {
     }
     void Line::draw(PNGImage &img) const
     {
@@ -318,8 +382,12 @@ namespace svg
             end = end.translate(offset);
         }
     }
+    SVGElement* Line::copy()
+    {
+        return new Line(start, end, stroke);
+    }
     /////
-    Polygon::Polygon(XMLElement *xml_elem)
+    Polygon::Polygon(XMLElement *xml_elem, map<string, SVGElement*> &idMap)
     {
         string str = xml_elem->Attribute("points");
         int x = 0, y = 0;
@@ -360,6 +428,11 @@ namespace svg
         points.push_back({x, y});
         fill = parse_color(xml_elem->Attribute("fill"));
     }
+    Polygon::Polygon(const std::vector<Point> &points,
+                     const Color &fill)
+        : points(points), fill(fill)
+    {
+    }
     void Polygon::draw(PNGImage &img) const
     {
         img.draw_polygon(points, fill);
@@ -398,8 +471,12 @@ namespace svg
             }
         }
     }
+    SVGElement* Polygon::copy()
+    {
+        return new Polygon(points, fill);
+    }
     /////
-    Rect::Rect(XMLElement *xml_elem)
+    Rect::Rect(XMLElement *xml_elem, map<string, SVGElement*> &idMap)
     {
         Point position = {stoi(xml_elem->Attribute("x")), stoi(xml_elem->Attribute("y"))};
         int width = stoi(xml_elem->Attribute("width"));
@@ -410,6 +487,11 @@ namespace svg
                   {position.x + width - 1, position.y},
                   {position.x + width - 1, position.y + height - 1},
                   {position.x, position.y + height - 1}};
+    }
+    Rect::Rect(const vector<Point> &points,
+               const Color &fill)
+        : points(points), fill(fill)
+    {
     }
     void Rect::draw(PNGImage &img) const
     {
@@ -449,5 +531,9 @@ namespace svg
                 point = point.translate(offset);
             }
         }
+    }
+    SVGElement* Rect::copy()
+    {
+        return new Rect(points, fill);
     }
 }

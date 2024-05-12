@@ -1,6 +1,7 @@
 
 #include <iostream>
-#include <sstream>
+//#include <sstream>
+#include <map>
 #include "SVGElements.hpp"
 #include "external/tinyxml2/tinyxml2.h"
 
@@ -24,8 +25,7 @@ namespace svg
 
         dimensions.x = xml_elem->IntAttribute("width");
         dimensions.y = xml_elem->IntAttribute("height");
-        
-        
+        map<string, SVGElement*> idMap;
         for (XMLElement *child = xml_elem->FirstChildElement(); child != nullptr; child = child->NextSiblingElement())
         {
             string childName = child->Name();
@@ -33,31 +33,35 @@ namespace svg
             // Might as well get rid of this logic and treat the root element as a Group
             if (childName == "ellipse")
             {
-                newElement = new Ellipse(child);
+                newElement = new Ellipse(child, idMap);
             }
             else if (childName == "circle")
             {
-                newElement = new Circle(child);
+                newElement = new Circle(child, idMap);
             }
             else if (childName == "polyline")
             {
-                newElement = new Polyline(child);
+                newElement = new Polyline(child, idMap);
             }
             else if (childName == "line")
             { 
-                newElement = new Line(child);
+                newElement = new Line(child, idMap);
             }
             else if (childName == "polygon")
             {
-                newElement = new Polygon(child);
+                newElement = new Polygon(child, idMap);
             }
             else if (childName == "rect")
             { 
-                newElement = new Rect(child);
+                newElement = new Rect(child, idMap);
             }
             else if (childName == "g")
             {
-                newElement = new Group(child);
+                newElement = new Group(child, idMap);
+            }
+            else if (childName == "use")
+            {
+                newElement = use(child, idMap);
             }
             std::string operation;
             Point origin = {0, 0};
@@ -69,6 +73,11 @@ namespace svg
             {
                 operation = child->Attribute("transform");
                 newElement->transform(operation, origin);
+            }
+            if (child->Attribute("id"))
+            {
+                string id = child->Attribute("id");
+                idMap[id] = newElement;
             }
             svg_elements.push_back(newElement);
         }
