@@ -63,27 +63,27 @@ namespace svg
             SVGElement *newElement;
             if (childName == "ellipse")
             {
-                newElement = new Ellipse(child, idMap);
+                newElement = new Ellipse(child);
             }
             else if (childName == "circle")
             {
-                newElement = new Circle(child, idMap);
+                newElement = new Circle(child);
             }
             else if (childName == "polyline")
             {
-                newElement = new Polyline(child, idMap);
+                newElement = new Polyline(child);
             }
             else if (childName == "line")
             { 
-                newElement = new Line(child, idMap);
+                newElement = new Line(child);
             }
             else if (childName == "polygon")
             {
-                newElement = new Polygon(child, idMap);
+                newElement = new Polygon(child);
             }
             else if (childName == "rect")
             { 
-                newElement = new Rect(child, idMap);
+                newElement = new Rect(child);
             }
             else if (childName == "g")
             {
@@ -149,7 +149,7 @@ namespace svg
     }
     // TODO:
     // Replace stoi() with XMLElement's methods for getting int attributes
-    Ellipse::Ellipse(XMLElement *xml_elem, map<string, SVGElement*> &idMap)
+    Ellipse::Ellipse(XMLElement *xml_elem)
     {
         center = {stoi(xml_elem->Attribute("cx")), stoi(xml_elem->Attribute("cy"))};
         radius = {stoi(xml_elem->Attribute("rx")), stoi(xml_elem->Attribute("ry"))};
@@ -196,7 +196,7 @@ namespace svg
         return new Ellipse(fill, center, radius);
     }
     /////
-    Circle::Circle(XMLElement *xml_elem, map<string, SVGElement*> &idMap)
+    Circle::Circle(XMLElement *xml_elem)
     {
         center = {stoi(xml_elem->Attribute("cx")), stoi(xml_elem->Attribute("cy"))};
         radius = stoi(xml_elem->Attribute("r"));
@@ -243,7 +243,7 @@ namespace svg
         return new Circle(center, radius, fill);
     }
     /////
-    Polyline::Polyline(XMLElement *xml_elem, map<string, SVGElement*> &idMap)
+    Polyline::Polyline(XMLElement *xml_elem)
     {
         string str = xml_elem->Attribute("points");
         int x = 0, y = 0;
@@ -338,7 +338,7 @@ namespace svg
         return new Polyline(points, stroke);
     }
     /////
-    Line::Line(XMLElement *xml_elem, map<string, SVGElement*> &idMap)
+    Line::Line(XMLElement *xml_elem)
     {
         start = {stoi(xml_elem->Attribute("x1")), stoi(xml_elem->Attribute("y1"))};
         end = {stoi(xml_elem->Attribute("x2")), stoi(xml_elem->Attribute("y2"))};
@@ -387,7 +387,7 @@ namespace svg
         return new Line(start, end, stroke);
     }
     /////
-    Polygon::Polygon(XMLElement *xml_elem, map<string, SVGElement*> &idMap)
+    Polygon::Polygon(XMLElement *xml_elem)
     {
         string str = xml_elem->Attribute("points");
         int x = 0, y = 0;
@@ -476,7 +476,7 @@ namespace svg
         return new Polygon(points, fill);
     }
     /////
-    Rect::Rect(XMLElement *xml_elem, map<string, SVGElement*> &idMap)
+    Rect::Rect(XMLElement *xml_elem)
     {
         Point position = {stoi(xml_elem->Attribute("x")), stoi(xml_elem->Attribute("y"))};
         int width = stoi(xml_elem->Attribute("width"));

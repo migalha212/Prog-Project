@@ -33,27 +33,27 @@ namespace svg
             // Might as well get rid of this logic and treat the root element as a Group
             if (childName == "ellipse")
             {
-                newElement = new Ellipse(child, idMap);
+                newElement = new Ellipse(child);
             }
             else if (childName == "circle")
             {
-                newElement = new Circle(child, idMap);
+                newElement = new Circle(child);
             }
             else if (childName == "polyline")
             {
-                newElement = new Polyline(child, idMap);
+                newElement = new Polyline(child);
             }
             else if (childName == "line")
             { 
-                newElement = new Line(child, idMap);
+                newElement = new Line(child);
             }
             else if (childName == "polygon")
             {
-                newElement = new Polygon(child, idMap);
+                newElement = new Polygon(child);
             }
             else if (childName == "rect")
             { 
-                newElement = new Rect(child, idMap);
+                newElement = new Rect(child);
             }
             else if (childName == "g")
             {
