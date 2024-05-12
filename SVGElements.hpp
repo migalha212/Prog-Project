@@ -35,7 +35,8 @@ namespace svg
     class Group : public SVGElement
     {
     public:
-        Group();
+        Group(tinyxml2::XMLElement *elem);
+        ~Group();
         void draw(PNGImage &img) const override;
         void transform(const std::string& operation, const Point& origin) override;
     private:
@@ -45,7 +46,7 @@ namespace svg
     class Ellipse : public SVGElement
     {
     public:
-        Ellipse(tinyxml2::XMLElement *elem);
+        Ellipse(tinyxml2::XMLElement *xml_elem);
         void draw(PNGImage &img) const override;
         void transform(const std::string& operation, const Point& origin) override;
     private:
@@ -57,7 +58,7 @@ namespace svg
     class Circle : public SVGElement
     {
     public:
-        Circle(tinyxml2::XMLElement *elem);
+        Circle(tinyxml2::XMLElement *xml_elem);
         void draw(PNGImage &img) const override;
         void transform(const std::string& operation, const Point& origin) override;
     private:
@@ -68,7 +69,7 @@ namespace svg
     class Polyline : public SVGElement
     {
     public:
-        Polyline(tinyxml2::XMLElement *elem);
+        Polyline(tinyxml2::XMLElement *xml_elem);
         void draw(PNGImage &img) const override;
         void transform(const std::string& operation, const Point& origin) override;
     private:
@@ -78,7 +79,7 @@ namespace svg
     class Line : public SVGElement
     {
     public:
-        Line(tinyxml2::XMLElement *elem);
+        Line(tinyxml2::XMLElement *xml_elem);
         void draw(PNGImage &img) const override;
         void transform(const std::string& operation, const Point& origin) override;
     private:
@@ -89,7 +90,7 @@ namespace svg
     class Polygon : public SVGElement
     {
     public:
-        Polygon(tinyxml2::XMLElement *elem);
+        Polygon(tinyxml2::XMLElement *xml_elem);
         void draw(PNGImage &img) const override;
         void transform(const std::string& operation, const Point& origin) override;
     private:
@@ -99,7 +100,7 @@ namespace svg
     class Rect : public SVGElement
     {
     public:
-        Rect(tinyxml2::XMLElement *elem);
+        Rect(tinyxml2::XMLElement *xml_elem);
         void draw(PNGImage & img) const override;
         void transform(const std::string& operation, const Point& origin) override;
     private:

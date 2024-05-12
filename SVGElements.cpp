@@ -1,7 +1,8 @@
 #include "SVGElements.hpp"
-//#include <sstream>
+// #include <sstream>
 #include <string>
 using namespace std;
+using namespace tinyxml2;
 namespace svg
 {
 
@@ -15,7 +16,7 @@ namespace svg
             negative = true;
             i++;
         }
-            
+
         while (str[i] != ' ' && str[i] != ',')
         {
             x *= 10;
@@ -46,12 +47,84 @@ namespace svg
     SVGElement::SVGElement() {}
     SVGElement::~SVGElement() {}
 
-    // Ellipse (initial code provided)
-    Ellipse::Ellipse(tinyxml2::XMLElement *elem)
+    Group::Group(XMLElement *xml_elem)
     {
-        center = {stoi(elem->Attribute("cx")), stoi(elem->Attribute("cy"))};
-        radius = {stoi(elem->Attribute("rx")), stoi(elem->Attribute("ry"))};
-        fill = parse_color(elem->Attribute("fill")); 
+        for (XMLElement *child = xml_elem->FirstChildElement(); child != nullptr; child = child->NextSiblingElement())
+        {
+            string childName = child->Name();
+            SVGElement *newElement;
+            if (childName == "ellipse")
+            {
+                newElement = new Ellipse(child);
+            }
+            else if (childName == "circle")
+            {
+                newElement = new Circle(child);
+            }
+            else if (childName == "polyline")
+            {
+                newElement = new Polyline(child);
+            }
+            else if (childName == "line")
+            { 
+                newElement = new Line(child);
+            }
+            else if (childName == "polygon")
+            {
+                newElement = new Polygon(child);
+            }
+            else if (childName == "rect")
+            { 
+                newElement = new Rect(child);
+            }
+            else if (childName == "g")
+            {
+                newElement = new Group(child);
+            }
+            std::string operation;
+            Point origin = {0, 0};
+            if (child->Attribute("transform-origin"))
+            {
+                origin = parsePoint(child->Attribute("transform-origin"));
+            }
+            if (child->Attribute("transform"))
+            {
+                operation = child->Attribute("transform");
+                newElement->transform(operation, origin);
+            }
+            elements.push_back(newElement);
+        }
+    }
+    Group::~Group()
+    {
+        for(SVGElement *elem : elements)
+        {
+            delete elem;
+        }
+    }
+    // void draw(PNGImage &img) const override;
+    // void transform(const std::string& operation, const Point& origin) override;
+    void Group::draw(PNGImage &img) const
+    {
+        for(SVGElement *elem : elements)
+        {
+            elem->draw(img);
+        }
+    }
+    void Group::transform(const std::string& operation, const Point& origin)
+    {
+        for(SVGElement *elem : elements)
+        {
+            elem->transform(operation, origin);
+        }
+    }
+    // TODO:
+    // Replace stoi() with XMLElement's methods for getting int attributes
+    Ellipse::Ellipse(XMLElement *xml_elem)
+    {
+        center = {stoi(xml_elem->Attribute("cx")), stoi(xml_elem->Attribute("cy"))};
+        radius = {stoi(xml_elem->Attribute("rx")), stoi(xml_elem->Attribute("ry"))};
+        fill = parse_color(xml_elem->Attribute("fill"));
     }
     void Ellipse::draw(PNGImage &img) const
     {
@@ -84,11 +157,11 @@ namespace svg
         }
     }
     /////
-    Circle::Circle(tinyxml2::XMLElement *elem)
+    Circle::Circle(XMLElement *xml_elem)
     {
-        center = {stoi(elem->Attribute("cx")), stoi(elem->Attribute("cy"))};
-        radius = stoi(elem->Attribute("r"));
-        fill = parse_color(elem->Attribute("fill"));
+        center = {stoi(xml_elem->Attribute("cx")), stoi(xml_elem->Attribute("cy"))};
+        radius = stoi(xml_elem->Attribute("r"));
+        fill = parse_color(xml_elem->Attribute("fill"));
     }
     void Circle::draw(PNGImage &img) const
     {
@@ -121,13 +194,13 @@ namespace svg
         }
     }
     /////
-    Polyline::Polyline(tinyxml2::XMLElement *elem)
+    Polyline::Polyline(XMLElement *xml_elem)
     {
-        string str = elem->Attribute("points");
+        string str = xml_elem->Attribute("points");
         int x = 0, y = 0;
         char current = 'n';
         unsigned int i = 0;
-        while (i < str.length())        // THIS IS REUSED FOR POLYGON
+        while (i < str.length()) // THIS IS REUSED FOR POLYGON
         {
             if (str[i] == ',' || str[i] == ' ')
             {
@@ -160,7 +233,7 @@ namespace svg
             i++;
         }
         points.push_back({x, y});
-        stroke = parse_color(elem->Attribute("stroke"));
+        stroke = parse_color(xml_elem->Attribute("stroke"));
     }
     void Polyline::draw(PNGImage &img) const
     {
@@ -207,11 +280,11 @@ namespace svg
         }
     }
     /////
-    Line::Line(tinyxml2::XMLElement *elem)
+    Line::Line(XMLElement *xml_elem)
     {
-        start = {stoi(elem->Attribute("x1")), stoi(elem->Attribute("y1"))};
-        end = {stoi(elem->Attribute("x2")), stoi(elem->Attribute("y2"))};
-        stroke = parse_color(elem->Attribute("stroke"));
+        start = {stoi(xml_elem->Attribute("x1")), stoi(xml_elem->Attribute("y1"))};
+        end = {stoi(xml_elem->Attribute("x2")), stoi(xml_elem->Attribute("y2"))};
+        stroke = parse_color(xml_elem->Attribute("stroke"));
     }
     void Line::draw(PNGImage &img) const
     {
@@ -246,13 +319,13 @@ namespace svg
         }
     }
     /////
-    Polygon::Polygon(tinyxml2::XMLElement *elem)
+    Polygon::Polygon(XMLElement *xml_elem)
     {
-        string str = elem->Attribute("points");
+        string str = xml_elem->Attribute("points");
         int x = 0, y = 0;
         char current = 'n';
         unsigned int i = 0;
-        while (i < str.length())        // THIS IS REUSED FOR POLYLINE
+        while (i < str.length()) // THIS IS REUSED FOR POLYLINE
         {
             if (str[i] == ',' || str[i] == ' ')
             {
@@ -285,7 +358,7 @@ namespace svg
             i++;
         }
         points.push_back({x, y});
-        fill = parse_color(elem->Attribute("fill")); 
+        fill = parse_color(xml_elem->Attribute("fill"));
     }
     void Polygon::draw(PNGImage &img) const
     {
@@ -326,17 +399,17 @@ namespace svg
         }
     }
     /////
-    Rect::Rect(tinyxml2::XMLElement *elem)
+    Rect::Rect(XMLElement *xml_elem)
     {
-        Point position = {stoi(elem->Attribute("x")), stoi(elem->Attribute("y"))};
-        int width = stoi(elem->Attribute("width"));
-        int height = stoi(elem->Attribute("height"));
+        Point position = {stoi(xml_elem->Attribute("x")), stoi(xml_elem->Attribute("y"))};
+        int width = stoi(xml_elem->Attribute("width"));
+        int height = stoi(xml_elem->Attribute("height"));
 
-        fill = parse_color(elem->Attribute("fill"));
+        fill = parse_color(xml_elem->Attribute("fill"));
         points = {position,
-                  {position.x + width - 1,  position.y},
-                  {position.x + width - 1,  position.y + height - 1},
-                  {position.x,              position.y + height - 1}};
+                  {position.x + width - 1, position.y},
+                  {position.x + width - 1, position.y + height - 1},
+                  {position.x, position.y + height - 1}};
     }
     void Rect::draw(PNGImage &img) const
     {

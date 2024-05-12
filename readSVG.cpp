@@ -25,19 +25,12 @@ namespace svg
         dimensions.x = xml_elem->IntAttribute("width");
         dimensions.y = xml_elem->IntAttribute("height");
         
-        // TODO:
-        // Replace stoi() with XMLElement's methods for getting int attributes
+        
         for (XMLElement *child = xml_elem->FirstChildElement(); child != nullptr; child = child->NextSiblingElement())
         {
             string childName = child->Name();
             SVGElement *newElement;
-            /////
-            // Check for transforms, remember operation type and origin
-            // to later apply to the newElement when we know what type
-            // it is and when it's already has been initialized
-            /////
-            
-            /////
+            // Might as well get rid of this logic and treat the root element as a Group
             if (childName == "ellipse")
             {
                 newElement = new Ellipse(child);
@@ -62,7 +55,10 @@ namespace svg
             { 
                 newElement = new Rect(child);
             }
-            
+            else if (childName == "g")
+            {
+                newElement = new Group(child);
+            }
             std::string operation;
             Point origin = {0, 0};
             if (child->Attribute("transform-origin"))
