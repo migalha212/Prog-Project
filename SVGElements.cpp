@@ -17,6 +17,20 @@ namespace svg
     {
         img.draw_ellipse(center, radius, fill);
     }
+
+    void Ellipse::rotate(const Point &origin,const int &angle)
+    {
+        center = center.rotate(origin,angle);
+    }
+    void Ellipse::scale(const Point &origin,const int &factor)
+    {
+        center = center.scale(origin,factor);
+        radius = radius.scale({0,0},factor);
+    }
+    void Ellipse::translate(const int &x,const int &y)
+    {
+        center = center.translate({x,y});
+    }
     // @todo provide the implementation of SVGElement derived classes
     // HERE -->
     Circle::Circle(const Color &fill,
@@ -52,14 +66,54 @@ namespace svg
         }
     }
 
+    void Polyline::rotate(const Point &origin, const int &angle)
+    {
+        for(Point &p : this->points)
+        {
+            p = p.rotate(origin,angle);
+        }
+    }
+    void Polyline::scale(const Point &origin,const int &factor)
+    {
+        for(Point &p : points)
+        {
+            p = p.scale(origin,factor);
+        }
+    }
+    void Polyline::translate(const int &x,const int &y)
+    {
+        for(Point &p : points)
+        {
+            p = p.translate({x,y});
+        }
+    }
+
    Line::Line(const Point& start,const Point& end,const Color& stroke) : start(start), end(end), stroke(stroke)
    {
    }
+
+    void Line::rotate(const Point &origin, const int &angle)
+    {
+        start = start.rotate(origin,angle);
+        end = end.rotate(origin,angle);
+    }
 
     void Line::draw(PNGImage& img) const
     {
         img.draw_line(start,end,stroke);
     }
+    void Line::scale(const Point &origin,const int &factor)
+    {
+        start = start.scale(origin,factor);
+        end = end.scale(origin,factor);
+    }
+    void Line::translate(const int &x,const int &y)
+    {
+        start = start.translate({x,y});
+        end = end.translate({x,y});
+    }
+
+
 
     Polygon::Polygon(const std::vector<Point> &points, const Color &fill)
     {
@@ -71,12 +125,33 @@ namespace svg
         this->fill = fill;
     }
 
+    void Polygon::rotate(const Point &origin, const int &angle)
+    {
+        for(Point &p : points)
+        {
+           p = p.rotate(origin,angle);
+        }
+    }
+    void Polygon::scale(const Point &origin,const int &factor)
+    {
+        for(Point &p : points)
+        {
+            p = p.scale(origin,factor);
+        }
+    }
+    void Polygon::translate(const int &x,const int &y)
+    {
+        for(Point &p : points)
+        {
+            p = p.translate({x,y});
+        }
+    }
+
     void Polygon::draw(PNGImage &img) const
     {
         img.draw_polygon(points,fill);
     }
-    Rect::Rect(const Point &upper, const int &width, const int &height, const Color &fill) :
-        Polygon({upper,{upper.x, upper.y + height - 1},{upper.x + width - 1,upper.y + height - 1},{upper.x + width - 1,upper.y}},fill)
+    Rect::Rect(const std::vector<Point> &points, const Color &fill) : Polygon(points,fill)
     {   
     }
 }

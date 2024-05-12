@@ -16,6 +16,9 @@ namespace svg
         SVGElement();
         virtual ~SVGElement();
         virtual void draw(PNGImage &img) const = 0;
+        virtual void rotate(const Point &origin,const int &angle) = 0;
+        virtual void translate(const int &x,const int &y) = 0;
+        virtual void scale(const Point &origin,const int &factor) = 0;
     };
 
     // Declaration of namespace functions
@@ -33,7 +36,9 @@ namespace svg
     public:
         Ellipse(const Color &fill, const Point &center, const Point &radius);
         void draw(PNGImage &img) const override;
-
+        void rotate(const Point &origin, const int &angle) override;
+        void scale(const Point &origin,const int &factor) override;
+        void translate(const int &x,const int &y) override;
     private:
         Color fill;
         Point center;
@@ -51,6 +56,9 @@ namespace svg
     public:
         Polyline(const std::vector<Point> &points, const Color &stroke);
         void draw(PNGImage &img) const override;
+        void rotate(const Point &origin, const int &angle) override;
+        void scale(const Point &origin,const int &factor) override;
+        void translate(const int &x,const int &y) override;
     private:
         std::vector<Point> points;
         Color stroke;        
@@ -61,6 +69,9 @@ namespace svg
     public:
         Line(const Point &start, const Point &end, const Color &stroke);
         void draw(PNGImage &img) const override;
+        void rotate(const Point &origin, const int &angle) override;
+        void scale(const Point &origin,const int &factor) override;
+        void translate(const int &x,const int &y) override;
     private:
         Point start;
         Point end;
@@ -72,6 +83,9 @@ namespace svg
     public:
         Polygon(const std::vector<Point> &points, const Color &fill);
         void draw(PNGImage &img) const override;
+        void rotate(const Point &origin, const int &angle) override;
+        void scale(const Point &origin,const int &factor) override;
+        void translate(const int &x,const int &y) override;
     private:
     std::vector<Point> points;
     Color fill;
@@ -80,7 +94,17 @@ namespace svg
     class Rect : public Polygon
     {
     public:
-        Rect(const Point &upper, const int &width, const int &height, const Color &fill);
+        Rect(const std::vector<Point> &points, const Color &fill);
+    };
+
+    class Group : public SVGElement
+    {
+        public:
+
+        private:
+        std::vector<SVGElement*> elements;
+        std::string transformation;
+        Point origin;
     };
 }
 #endif

@@ -31,15 +31,15 @@ namespace svg
             SVGElement *new_element;
             if(child_name == "ellipse")
             {
-                Point center = {stoi(child->Attribute("cx")),stoi(child->Attribute("cy"))};
-                Point radius = {stoi(child->Attribute("rx")),stoi(child->Attribute("ry"))};
+                Point center = {child->IntAttribute("cx"),child->IntAttribute("cy")};
+                Point radius = {child->IntAttribute("rx"),child->IntAttribute("ry")};
                 Color fill = parse_color(child->Attribute("fill"));
                 new_element = new Ellipse(fill,center,radius);
             }
             if(child_name == "circle")
             {
-                Point center = {stoi(child->Attribute("cx")),stoi(child->Attribute("cy"))};
-                int radius = {stoi(child->Attribute("r"))};
+                Point center = {child->IntAttribute("cx"),child->IntAttribute("cy")};
+                int radius = {child->IntAttribute("r")};
                 Color fill = parse_color(child->Attribute("fill"));
                 new_element = new Circle(fill,center,radius);
             }
@@ -58,8 +58,8 @@ namespace svg
             if(child_name == "line")
             {
                 Color stroke = parse_color(child->Attribute("stroke"));
-                Point start = {stoi(child->Attribute("x1")),stoi(child->Attribute("y1"))};
-                Point end = {stoi(child->Attribute("x2")),stoi(child->Attribute("y2"))};
+                Point start = {child->IntAttribute("x1"),child->IntAttribute("y1")};
+                Point end = {child->IntAttribute("x2"),child->IntAttribute("y2")};
                 new_element = new Line(start,end,stroke);
             }
             if(child_name == "polygon")
@@ -85,10 +85,54 @@ namespace svg
             if(child_name == "rect")
             {
                 Color fill = parse_color(child->Attribute("fill"));
-                int width = stoi(child->Attribute("width"));
-                int height = stoi(child->Attribute("height"));
-                Point upper = {stoi(child->Attribute("x")),stoi(child->Attribute("y"))};
-                new_element = new Rect(upper,width,height,fill);
+                int width = child->IntAttribute("width");
+                int height = child->IntAttribute("height");
+                Point upper = {child->IntAttribute("x"),child->IntAttribute("y")};
+
+                std::vector<Point> points =  {upper,
+                                             {upper.x + width - 1,upper.y},
+                                             {upper.x + width - 1,upper.y + height - 1},
+                                             {upper.x,upper.y + height - 1}};
+                
+                new_element = new Rect(points,fill);
+            }
+
+            if(child->Attribute("transform"))
+            {
+                Point origin = {0,0};
+                if(child->Attribute("transform-origin"))
+                {
+                    istringstream iss(child->Attribute("transform-origin"));
+                    int x,y;
+                    iss >> x >> y;
+                    origin = {x,y};
+                }
+                string transform = child->Attribute("transform");
+                string opp = transform.substr(0,transform.find('('));
+                if(opp == "rotate")
+                {
+                    istringstream valstr(transform.substr(transform.find('(')+1,5));
+                    int value = 0; valstr >> value;
+                    new_element->rotate(origin,value);
+                }
+                if(opp == "scale")
+                {
+                    istringstream valstr(transform.substr(transform.find('(')+1,5));
+                    int value = 0; valstr >> value;
+                    new_element->scale(origin,value);
+                }
+                if(opp == "translate")
+                {
+                    istringstream valstr(transform.substr(transform.find('(')+1,12));
+                    int x,y = 0; valstr >> x >> y;
+                    if(valstr.fail())
+                    {
+                        valstr.clear(); valstr.ignore(1);
+                        valstr >> y;
+                    }
+                    
+                    new_element->translate(x,y);
+                }
             }
             svg_elements.push_back(new_element);
             
