@@ -1,5 +1,7 @@
 #include "SVGElements.hpp"
-#include <sstream>
+//#include <sstream>
+#include <string>
+using namespace std;
 namespace svg
 {
 
@@ -45,11 +47,11 @@ namespace svg
     SVGElement::~SVGElement() {}
 
     // Ellipse (initial code provided)
-    Ellipse::Ellipse(const Color &fill,
-                     const Point &center,
-                     const Point &radius)
-        : fill(fill), center(center), radius(radius)
+    Ellipse::Ellipse(tinyxml2::XMLElement *elem)
     {
+        center = {stoi(elem->Attribute("cx")), stoi(elem->Attribute("cy"))};
+        radius = {stoi(elem->Attribute("rx")), stoi(elem->Attribute("ry"))};
+        fill = parse_color(elem->Attribute("fill")); 
     }
     void Ellipse::draw(PNGImage &img) const
     {
@@ -82,11 +84,11 @@ namespace svg
         }
     }
     /////
-    Circle::Circle(const Point &center,
-                   int radius,
-                   const Color &fill)
-        : center(center), radius(radius), fill(fill)
+    Circle::Circle(tinyxml2::XMLElement *elem)
     {
+        center = {stoi(elem->Attribute("cx")), stoi(elem->Attribute("cy"))};
+        radius = stoi(elem->Attribute("r"));
+        fill = parse_color(elem->Attribute("fill"));
     }
     void Circle::draw(PNGImage &img) const
     {
@@ -119,10 +121,46 @@ namespace svg
         }
     }
     /////
-    Polyline::Polyline(const std::vector<Point> &points,
-                       const Color &stroke)
-        : points(points), stroke(stroke)
+    Polyline::Polyline(tinyxml2::XMLElement *elem)
     {
+        string str = elem->Attribute("points");
+        int x = 0, y = 0;
+        char current = 'n';
+        unsigned int i = 0;
+        while (i < str.length())        // THIS IS REUSED FOR POLYGON
+        {
+            if (str[i] == ',' || str[i] == ' ')
+            {
+                if (current == 'x')
+                {
+                    current = 'y';
+                }
+                else if (current == 'y')
+                {
+                    points.push_back({x, y});
+                    x = 0;
+                    y = 0;
+                    current = 'n';
+                }
+            }
+            else
+            {
+                if (current == 'x' || current == 'n')
+                {
+                    current = 'x';
+                    x *= 10;
+                    x += str[i] - '0';
+                }
+                else
+                {
+                    y *= 10;
+                    y += str[i] - '0';
+                }
+            }
+            i++;
+        }
+        points.push_back({x, y});
+        stroke = parse_color(elem->Attribute("stroke"));
     }
     void Polyline::draw(PNGImage &img) const
     {
@@ -169,11 +207,11 @@ namespace svg
         }
     }
     /////
-    Line::Line(const Point &start,
-               const Point &end,
-               const Color &stroke)
-        : start(start), end(end), stroke(stroke)
+    Line::Line(tinyxml2::XMLElement *elem)
     {
+        start = {stoi(elem->Attribute("x1")), stoi(elem->Attribute("y1"))};
+        end = {stoi(elem->Attribute("x2")), stoi(elem->Attribute("y2"))};
+        stroke = parse_color(elem->Attribute("stroke"));
     }
     void Line::draw(PNGImage &img) const
     {
@@ -208,10 +246,46 @@ namespace svg
         }
     }
     /////
-    Polygon::Polygon(const std::vector<Point> &points,
-                     const Color &fill)
-        : points(points), fill(fill)
+    Polygon::Polygon(tinyxml2::XMLElement *elem)
     {
+        string str = elem->Attribute("points");
+        int x = 0, y = 0;
+        char current = 'n';
+        unsigned int i = 0;
+        while (i < str.length())        // THIS IS REUSED FOR POLYLINE
+        {
+            if (str[i] == ',' || str[i] == ' ')
+            {
+                if (current == 'x')
+                {
+                    current = 'y';
+                }
+                else if (current == 'y')
+                {
+                    points.push_back({x, y});
+                    x = 0;
+                    y = 0;
+                    current = 'n';
+                }
+            }
+            else
+            {
+                if (current == 'x' || current == 'n')
+                {
+                    current = 'x';
+                    x *= 10;
+                    x += str[i] - '0';
+                }
+                else
+                {
+                    y *= 10;
+                    y += str[i] - '0';
+                }
+            }
+            i++;
+        }
+        points.push_back({x, y});
+        fill = parse_color(elem->Attribute("fill")); 
     }
     void Polygon::draw(PNGImage &img) const
     {
@@ -252,12 +326,13 @@ namespace svg
         }
     }
     /////
-    Rect::Rect(const Point &position,
-               int width,
-               int height,
-               const Color &fill)
-        : fill(fill)
+    Rect::Rect(tinyxml2::XMLElement *elem)
     {
+        Point position = {stoi(elem->Attribute("x")), stoi(elem->Attribute("y"))};
+        int width = stoi(elem->Attribute("width"));
+        int height = stoi(elem->Attribute("height"));
+
+        fill = parse_color(elem->Attribute("fill"));
         points = {position,
                   {position.x + width - 1,  position.y},
                   {position.x + width - 1,  position.y + height - 1},
