@@ -1,6 +1,6 @@
 
 #include <iostream>
-//#include <sstream>
+// #include <sstream>
 #include <map>
 #include "SVGElements.hpp"
 #include "external/tinyxml2/tinyxml2.h"
@@ -13,7 +13,7 @@ using namespace tinyxml2;
 
 namespace svg
 {
-    void readSVG(const string& svg_file, Point& dimensions, vector<SVGElement *>& svg_elements)
+    void readSVG(const string &svg_file, Point &dimensions, vector<SVGElement *> &svg_elements)
     {
         XMLDocument doc;
         XMLError r = doc.LoadFile(svg_file.c_str());
@@ -25,7 +25,7 @@ namespace svg
 
         dimensions.x = xml_elem->IntAttribute("width");
         dimensions.y = xml_elem->IntAttribute("height");
-        map<string, SVGElement*> idMap;
+        map<string, SVGElement *> idMap;
         for (XMLElement *child = xml_elem->FirstChildElement(); child != nullptr; child = child->NextSiblingElement())
         {
             string childName = child->Name();
@@ -44,7 +44,7 @@ namespace svg
                 newElement = new Polyline(child);
             }
             else if (childName == "line")
-            { 
+            {
                 newElement = new Line(child);
             }
             else if (childName == "polygon")
@@ -52,7 +52,7 @@ namespace svg
                 newElement = new Polygon(child);
             }
             else if (childName == "rect")
-            { 
+            {
                 newElement = new Rect(child);
             }
             else if (childName == "g")
@@ -81,6 +81,5 @@ namespace svg
             }
             svg_elements.push_back(newElement);
         }
-        
     }
 }
