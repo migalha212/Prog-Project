@@ -25,6 +25,7 @@ namespace svg
         dimensions.x = xml_elem->IntAttribute("width");
         dimensions.y = xml_elem->IntAttribute("height");
         // TODO complete code -->
+
         for(XMLElement *child = xml_elem->FirstChildElement(); child != nullptr; child = child->NextSiblingElement())
         {
             string child_name = child->Name();
@@ -92,8 +93,7 @@ namespace svg
                 std::vector<Point> points =  {upper,
                                              {upper.x + width - 1,upper.y},
                                              {upper.x + width - 1,upper.y + height - 1},
-                                             {upper.x,upper.y + height - 1}};
-                
+                                             {upper.x,upper.y + height - 1}};              
                 new_element = new Rect(points,fill);
             }
 

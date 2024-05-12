@@ -37,6 +37,7 @@
 
 # VS Code config directory
 .vscode/
+output/
 
 # Compiled executables
 svgtopng

@@ -100,11 +100,14 @@ namespace svg
     class Group : public SVGElement
     {
         public:
+        Group();
+        void draw(PNGImage &img) const override;
+        void rotate(const Point &origin, const int &angle) override;
+        void scale(const Point &origin,const int &factor) override;
+        void translate(const int &x,const int &y) override;
 
         private:
         std::vector<SVGElement*> elements;
-        std::string transformation;
-        Point origin;
     };
 }
 #endif

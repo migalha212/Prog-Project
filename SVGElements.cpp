@@ -154,4 +154,39 @@ namespace svg
     Rect::Rect(const std::vector<Point> &points, const Color &fill) : Polygon(points,fill)
     {   
     }
+
+    Group::Group()
+    {
+        elements = {};
+    }
+
+    void Group::draw(PNGImage &img) const
+    {
+        for(SVGElement* element : elements)
+        {
+            element->draw(img);
+        }
+    }
+    void Group::rotate(const Point &origin, const int &angle)
+    {
+        for(SVGElement* element : elements)
+        {
+            element->rotate(origin,angle);
+        }
+    }
+
+    void Group::scale(const Point &origin,const int &factor)
+    {
+        for(SVGElement* element : elements)
+        {
+            element->scale(origin,factor);
+        }
+    }
+    void Group::translate(const int &x,const int &y)
+    {
+        for(SVGElement* element : elements)
+        {
+            element->translate(x,y);
+        }
+    }
 }
