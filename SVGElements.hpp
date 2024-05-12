@@ -32,6 +32,7 @@ namespace svg
     void convert(const std::string &svg_file,
                  const std::string &png_file);
     Point parsePoint(const std::string &str);
+    std::vector<Point> parsePointVector(const std::string &str);
     //returns dynamically allocated copy of an element
     SVGElement* use(tinyxml2::XMLElement *xml_elem, std::map<std::string, SVGElement*> &idMap);
     class Group : public SVGElement

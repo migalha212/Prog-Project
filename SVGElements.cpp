@@ -44,7 +44,48 @@ namespace svg
             y = -y;
         return {x, y};
     }
-    SVGElement* use(XMLElement *xml_elem, map<string, SVGElement*> &idMap)
+    vector<Point> parsePointVector(const string &str)
+    {
+        vector<Point> points;
+        int x = 0, y = 0;
+        char current = 'n';
+        unsigned int i = 0;
+        while (i < str.length())
+        {
+            if (str[i] == ',' || str[i] == ' ')
+            {
+                if (current == 'x')
+                {
+                    current = 'y';
+                }
+                else if (current == 'y')
+                {
+                    points.push_back({x, y});
+                    x = 0;
+                    y = 0;
+                    current = 'n';
+                }
+            }
+            else
+            {
+                if (current == 'x' || current == 'n')
+                {
+                    current = 'x';
+                    x *= 10;
+                    x += str[i] - '0';
+                }
+                else
+                {
+                    y *= 10;
+                    y += str[i] - '0';
+                }
+            }
+            i++;
+        }
+        points.push_back({x, y});
+        return points;
+    }
+    SVGElement *use(XMLElement *xml_elem, map<string, SVGElement *> &idMap)
     {
         string href = xml_elem->Attribute("href");
         href.erase(0, 1);
@@ -55,7 +96,7 @@ namespace svg
     SVGElement::SVGElement() {}
     SVGElement::~SVGElement() {}
 
-    Group::Group(XMLElement *xml_elem, map<string, SVGElement*> &idMap)
+    Group::Group(XMLElement *xml_elem, map<string, SVGElement *> &idMap)
     {
         for (XMLElement *child = xml_elem->FirstChildElement(); child != nullptr; child = child->NextSiblingElement())
         {
@@ -74,7 +115,7 @@ namespace svg
                 newElement = new Polyline(child);
             }
             else if (childName == "line")
-            { 
+            {
                 newElement = new Line(child);
             }
             else if (childName == "polygon")
@@ -82,7 +123,7 @@ namespace svg
                 newElement = new Polygon(child);
             }
             else if (childName == "rect")
-            { 
+            {
                 newElement = new Rect(child);
             }
             else if (childName == "g")
@@ -108,16 +149,16 @@ namespace svg
             {
                 string id = child->Attribute("id");
                 idMap[id] = newElement;
-            }   
+            }
             elements.push_back(newElement);
         }
     }
-    Group::Group(const vector<SVGElement*> &elements) : elements(elements)
+    Group::Group(const vector<SVGElement *> &elements) : elements(elements)
     {
     }
     Group::~Group()
     {
-        for(SVGElement *elem : elements)
+        for (SVGElement *elem : elements)
         {
             delete elem;
         }
@@ -126,22 +167,22 @@ namespace svg
     // void transform(const std::string& operation, const Point& origin) override;
     void Group::draw(PNGImage &img) const
     {
-        for(SVGElement *elem : elements)
+        for (SVGElement *elem : elements)
         {
             elem->draw(img);
         }
     }
-    void Group::transform(const std::string& operation, const Point& origin)
+    void Group::transform(const std::string &operation, const Point &origin)
     {
-        for(SVGElement *elem : elements)
+        for (SVGElement *elem : elements)
         {
             elem->transform(operation, origin);
         }
     }
-    SVGElement* Group::copy()
+    SVGElement *Group::copy()
     {
-        std::vector<SVGElement*> newElements;
-        for(SVGElement *elem : elements)
+        std::vector<SVGElement *> newElements;
+        for (SVGElement *elem : elements)
         {
             newElements.push_back(elem->copy());
         }
@@ -191,7 +232,7 @@ namespace svg
             center = center.translate(offset);
         }
     }
-    SVGElement* Ellipse::copy()
+    SVGElement *Ellipse::copy()
     {
         return new Ellipse(fill, center, radius);
     }
@@ -238,7 +279,7 @@ namespace svg
             center = center.translate(offset);
         }
     }
-    SVGElement* Circle::copy()
+    SVGElement *Circle::copy()
     {
         return new Circle(center, radius, fill);
     }
@@ -246,42 +287,7 @@ namespace svg
     Polyline::Polyline(XMLElement *xml_elem)
     {
         string str = xml_elem->Attribute("points");
-        int x = 0, y = 0;
-        char current = 'n';
-        unsigned int i = 0;
-        while (i < str.length()) // THIS IS REUSED FOR POLYGON
-        {
-            if (str[i] == ',' || str[i] == ' ')
-            {
-                if (current == 'x')
-                {
-                    current = 'y';
-                }
-                else if (current == 'y')
-                {
-                    points.push_back({x, y});
-                    x = 0;
-                    y = 0;
-                    current = 'n';
-                }
-            }
-            else
-            {
-                if (current == 'x' || current == 'n')
-                {
-                    current = 'x';
-                    x *= 10;
-                    x += str[i] - '0';
-                }
-                else
-                {
-                    y *= 10;
-                    y += str[i] - '0';
-                }
-            }
-            i++;
-        }
-        points.push_back({x, y});
+        points = parsePointVector(str);
         stroke = parse_color(xml_elem->Attribute("stroke"));
     }
     Polyline::Polyline(const std::vector<Point> &points,
@@ -333,7 +339,7 @@ namespace svg
             }
         }
     }
-    SVGElement* Polyline::copy()
+    SVGElement *Polyline::copy()
     {
         return new Polyline(points, stroke);
     }
@@ -382,7 +388,7 @@ namespace svg
             end = end.translate(offset);
         }
     }
-    SVGElement* Line::copy()
+    SVGElement *Line::copy()
     {
         return new Line(start, end, stroke);
     }
@@ -390,42 +396,7 @@ namespace svg
     Polygon::Polygon(XMLElement *xml_elem)
     {
         string str = xml_elem->Attribute("points");
-        int x = 0, y = 0;
-        char current = 'n';
-        unsigned int i = 0;
-        while (i < str.length()) // THIS IS REUSED FOR POLYLINE
-        {
-            if (str[i] == ',' || str[i] == ' ')
-            {
-                if (current == 'x')
-                {
-                    current = 'y';
-                }
-                else if (current == 'y')
-                {
-                    points.push_back({x, y});
-                    x = 0;
-                    y = 0;
-                    current = 'n';
-                }
-            }
-            else
-            {
-                if (current == 'x' || current == 'n')
-                {
-                    current = 'x';
-                    x *= 10;
-                    x += str[i] - '0';
-                }
-                else
-                {
-                    y *= 10;
-                    y += str[i] - '0';
-                }
-            }
-            i++;
-        }
-        points.push_back({x, y});
+        points = parsePointVector(str);
         fill = parse_color(xml_elem->Attribute("fill"));
     }
     Polygon::Polygon(const std::vector<Point> &points,
@@ -471,7 +442,7 @@ namespace svg
             }
         }
     }
-    SVGElement* Polygon::copy()
+    SVGElement *Polygon::copy()
     {
         return new Polygon(points, fill);
     }
@@ -532,7 +503,7 @@ namespace svg
             }
         }
     }
-    SVGElement* Rect::copy()
+    SVGElement *Rect::copy()
     {
         return new Rect(points, fill);
     }
