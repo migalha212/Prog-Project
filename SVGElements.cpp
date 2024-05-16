@@ -193,7 +193,7 @@ namespace svg
             element->translate(p);
         }
     }
-    Group::Group(tinyxml2::XMLElement *Root, map<string, SVGElement*> &idMap)
+    Group:: Group(tinyxml2::XMLElement *Root, map<string, SVGElement*> &idMap)
     {
         for(tinyxml2::XMLElement *child = Root->FirstChildElement(); child != nullptr; child = child->NextSiblingElement())
         {
