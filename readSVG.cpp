@@ -27,22 +27,43 @@ namespace svg
         // TODO complete code -->
 
         for(XMLElement *child = xml_elem->FirstChildElement(); child != nullptr; child = child->NextSiblingElement())
-        {
+        {   
+            string id = "";
+            if(child->Attribute("id"))
+            {
+                id = child->Attribute("id");
+            }
             string child_name = child->Name();
             SVGElement *new_element;
+            if(child_name == "use")
+            {
+                string copy_id = child->Attribute("href");
+                for(SVGElement* element : svg_elements)
+                {
+                    if(copy_id.substr(1) == element->get_id())
+                    {
+                        continue;
+                        new_element = element->copy(id);
+                    }
+                }
+            }
+            if(child_name == "g")
+            {
+                new_element = new Group(child,id);
+            }
             if(child_name == "ellipse")
             {
                 Point center = {child->IntAttribute("cx"),child->IntAttribute("cy")};
                 Point radius = {child->IntAttribute("rx"),child->IntAttribute("ry")};
                 Color fill = parse_color(child->Attribute("fill"));
-                new_element = new Ellipse(fill,center,radius);
+                new_element = new Ellipse(fill,center,radius,id);
             }
             if(child_name == "circle")
             {
                 Point center = {child->IntAttribute("cx"),child->IntAttribute("cy")};
                 int radius = {child->IntAttribute("r")};
                 Color fill = parse_color(child->Attribute("fill"));
-                new_element = new Circle(fill,center,radius);
+                new_element = new Circle(fill,center,radius,id);
             }
             if(child_name == "polyline")
             {
@@ -51,17 +72,24 @@ namespace svg
                 int x,y = 0;
                 char skip;
                 vector<Point> points = {};
-                while(iss >> x >> skip >> y){
+                while(!iss.eof())
+                {
+                    iss >> x;
+                    if(iss.fail()){
+                        iss.clear(); iss.ignore(1);
+                        continue;
+                    }
+                    iss >> skip >> y;
                     points.push_back({x,y});
                 }
-                new_element = new Polyline(points,stroke);
+                new_element = new Polyline(points,stroke,id);
             } 
             if(child_name == "line")
             {
                 Color stroke = parse_color(child->Attribute("stroke"));
                 Point start = {child->IntAttribute("x1"),child->IntAttribute("y1")};
                 Point end = {child->IntAttribute("x2"),child->IntAttribute("y2")};
-                new_element = new Line(start,end,stroke);
+                new_element = new Line(start,end,stroke,id);
             }
             if(child_name == "polygon")
             {
@@ -81,7 +109,7 @@ namespace svg
 
                     points.push_back({x,y});
                 }
-                new_element = new Polygon(points,fill);
+                new_element = new Polygon(points,fill,id);
             }
             if(child_name == "rect")
             {
@@ -94,7 +122,7 @@ namespace svg
                                              {upper.x + width - 1,upper.y},
                                              {upper.x + width - 1,upper.y + height - 1},
                                              {upper.x,upper.y + height - 1}};              
-                new_element = new Rect(points,fill);
+                new_element = new Rect(points,fill,id);
             }
 
             if(child->Attribute("transform"))
@@ -130,12 +158,10 @@ namespace svg
                         valstr.clear(); valstr.ignore(1);
                         valstr >> y;
                     }
-                    
-                    new_element->translate(x,y);
+                    new_element->translate({x,y});
                 }
             }
             svg_elements.push_back(new_element);
-            
         }
     }
 }
