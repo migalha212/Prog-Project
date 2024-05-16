@@ -25,9 +25,6 @@ namespace svg
         virtual void translate(const Point &p) = 0;
         virtual void scale(const Point &origin,const int &factor) = 0;
         virtual SVGElement* copy() = 0;
-        std::string get_id();
-    private:
-        
     };
 
     // Declaration of namespace functions
