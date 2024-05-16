@@ -1,22 +1,26 @@
 #include "SVGElements.hpp"
-
+using namespace svg;
+using namespace std;
+using namespace tinyxml2;
 namespace svg
 {
     // These must be defined!
     SVGElement::SVGElement() {}
     SVGElement::~SVGElement() {}
 
-    std::string SVGElement::get_id()
+    SVGElement *use(XMLElement *xml_elem, map<string, SVGElement*> &idMap)
     {
-        return this->id;
+        string href = xml_elem->Attribute("href");
+        href.erase(0, 1);
+        SVGElement *newElement = idMap[href]->copy();
+        return newElement;
     }
 
     // Ellipse (initial code provided)
     Ellipse::Ellipse(const Color &fill,
                      const Point &center,
-                     const Point &radius,
-                     const std::string &id)
-        : fill(fill), center(center), radius(radius), id(id)
+                     const Point &radius)
+        : fill(fill), center(center), radius(radius)
     {
     }
     void Ellipse::draw(PNGImage &img) const
@@ -37,21 +41,20 @@ namespace svg
     {
         center = center.translate(p);
     }
-    SVGElement* Ellipse::copy(std::string &id)
+    SVGElement* Ellipse::copy()
     {
-        return new Ellipse(fill,center,radius,id);
+        return new Ellipse(fill,center,radius);
     }
     // @todo provide the implementation of SVGElement derived classes
     // HERE -->
     Circle::Circle(const Color &fill,
                    const Point &center,
-                   const int &radius,
-                   const std::string &id)
-        : Ellipse(fill,center,{radius,radius},id)
+                   const int &radius)
+        : Ellipse(fill,center,{radius,radius})
     {
     }  
 
-    Polyline::Polyline(const std::vector<Point> &points, const Color &stroke,const std::string &id)
+    Polyline::Polyline(const std::vector<Point> &points, const Color &stroke)
     {
         for(Point p : points)
         {
@@ -61,9 +64,9 @@ namespace svg
         this->id = id;
         
     }
-    SVGElement* Polyline::copy(std::string &id)
+    SVGElement* Polyline::copy()
     {
-        return new Polyline(points,stroke,id);
+        return new Polyline(points,stroke);
     }
 
     
@@ -104,14 +107,14 @@ namespace svg
         }
     }
 
-   Line::Line(const Point& start,const Point& end,const Color& stroke,const std::string &id)
-    : start(start), end(end), stroke(stroke), id(id)
+   Line::Line(const Point& start,const Point& end,const Color& stroke)
+    : start(start), end(end), stroke(stroke)
    {
    }
 
-    SVGElement* Line::copy(std::string &id)
+    SVGElement* Line::copy()
     {
-        return new Line(start,end,stroke,id);
+        return new Line(start,end,stroke);
     }
     void Line::rotate(const Point &origin, const int &angle)
     {
@@ -136,7 +139,7 @@ namespace svg
 
 
 
-    Polygon::Polygon(const std::vector<Point> &points, const Color &fill,const std::string &id)
+    Polygon::Polygon(const std::vector<Point> &points, const Color &fill)
     {
         for(Point p : points)
         {
@@ -145,9 +148,9 @@ namespace svg
         this->fill = fill;
         this->id = id;
     }
-    SVGElement* Polygon::copy(std::string &id)
+    SVGElement* Polygon::copy()
     {
-        return new Polygon(points,fill,id);
+        return new Polygon(points,fill);
     }
 
     void Polygon::rotate(const Point &origin, const int &angle)
@@ -176,7 +179,7 @@ namespace svg
     {
         img.draw_polygon(points,fill);
     }
-    Rect::Rect(const std::vector<Point> &points, const Color &fill,const std::string &id) : Polygon(points,fill,id)
+    Rect::Rect(const std::vector<Point> &points, const Color &fill) : Polygon(points,fill)
     {   
     }
 
@@ -216,43 +219,33 @@ namespace svg
             element->translate(p);
         }
     }
-    Group::Group(tinyxml2::XMLElement *Root,const std::string &id)
+    Group::Group(tinyxml2::XMLElement *Root, map<string, SVGElement*> &idMap)
     {
         for(tinyxml2::XMLElement *child = Root->FirstChildElement(); child != nullptr; child = child->NextSiblingElement())
         {
-            std::string id1 = "";
-            if(child->Attribute("id"))
-            {
-                id1 = child->Attribute("id");
-            }
             std::string child_name = child->Name();
             SVGElement *new_element;
-           /* if(child_name == "use")
+            if(child_name == "use")
             {
-                std::string copy_id = child->Attribute("href");
-                for(SVGElement* element : svg_elements)
-                {
-                    if(copy_id.substr(1) == element->get_id())
-                    new_element = element->copy(id1);
-                }
-            }*/
+                new_element = use(child, idMap);
+            }
             if(child_name == "g")
             {
-                new_element = new Group(child,id1);
+                new_element = new Group(child, idMap);
             }
             if(child_name == "ellipse")
             {
                 Point center = {child->IntAttribute("cx"),child->IntAttribute("cy")};
                 Point radius = {child->IntAttribute("rx"),child->IntAttribute("ry")};
                 Color fill = parse_color(child->Attribute("fill"));
-                new_element = new Ellipse(fill,center,radius,id1);
+                new_element = new Ellipse(fill,center,radius);
             }
             if(child_name == "circle")
             {
                 Point center = {child->IntAttribute("cx"),child->IntAttribute("cy")};
                 int radius = {child->IntAttribute("r")};
                 Color fill = parse_color(child->Attribute("fill"));
-                new_element = new Circle(fill,center,radius,id1);
+                new_element = new Circle(fill,center,radius);
             }
             if(child_name == "polyline")
             {
@@ -264,14 +257,14 @@ namespace svg
                 while(iss >> x >> skip >> y){
                     points.push_back({x,y});
                 }
-                new_element = new Polyline(points,stroke,id1);
+                new_element = new Polyline(points,stroke);
             } 
             if(child_name == "line")
             {
                 Color stroke = parse_color(child->Attribute("stroke"));
                 Point start = {child->IntAttribute("x1"),child->IntAttribute("y1")};
                 Point end = {child->IntAttribute("x2"),child->IntAttribute("y2")};
-                new_element = new Line(start,end,stroke,id1);
+                new_element = new Line(start,end,stroke);
             }
             if(child_name == "polygon")
             {
@@ -291,7 +284,7 @@ namespace svg
 
                     points.push_back({x,y});
                 }
-                new_element = new Polygon(points,fill,id1);
+                new_element = new Polygon(points,fill);
             }
             if(child_name == "rect")
             {
@@ -304,7 +297,7 @@ namespace svg
                                              {upper.x + width - 1,upper.y},
                                              {upper.x + width - 1,upper.y + height - 1},
                                              {upper.x,upper.y + height - 1}};              
-                new_element = new Rect(points,fill,id1);
+                new_element = new Rect(points,fill);
             }
 
             if(child->Attribute("transform"))
@@ -343,11 +336,16 @@ namespace svg
                     new_element->translate({x,y});
                 }
             }
+            if (child->Attribute("id"))
+            {
+                string id = child->Attribute("id");
+                idMap[id] = new_element;
+            }
             elements.push_back(new_element);
         }
         this->id = id;
     }
-    Group::Group(std::vector<SVGElement*> elements,std::string &id)
+    Group::Group(std::vector<SVGElement*> elements)
     {
         for(SVGElement* element : elements)
         {
@@ -355,14 +353,14 @@ namespace svg
         }
         this->id = id;
     }
-    SVGElement* Group::copy(std::string &id)
+    SVGElement* Group::copy()
     {
         std::vector<SVGElement*> elements;
         for(SVGElement* element : this->elements)
         {
-            elements.push_back(element->copy(id));
+            elements.push_back(element->copy());
         }
-        return new Group(elements,id);
+        return new Group(elements);
     }
     Group::~Group()
     {

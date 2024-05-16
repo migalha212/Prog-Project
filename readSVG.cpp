@@ -25,45 +25,32 @@ namespace svg
         dimensions.x = xml_elem->IntAttribute("width");
         dimensions.y = xml_elem->IntAttribute("height");
         // TODO complete code -->
-
+        map<string, SVGElement *> idMap;
         for(XMLElement *child = xml_elem->FirstChildElement(); child != nullptr; child = child->NextSiblingElement())
         {   
-            string id = "";
-            if(child->Attribute("id"))
-            {
-                id = child->Attribute("id");
-            }
             string child_name = child->Name();
             SVGElement *new_element;
             if(child_name == "use")
             {
-                string copy_id = child->Attribute("href");
-                for(SVGElement* element : svg_elements)
-                {
-                    if(copy_id.substr(1) == element->get_id())
-                    {
-                        continue;
-                        new_element = element->copy(id);
-                    }
-                }
+                new_element = use(child, idMap);
             }
             if(child_name == "g")
             {
-                new_element = new Group(child,id);
+                new_element = new Group(child, idMap);
             }
             if(child_name == "ellipse")
             {
                 Point center = {child->IntAttribute("cx"),child->IntAttribute("cy")};
                 Point radius = {child->IntAttribute("rx"),child->IntAttribute("ry")};
                 Color fill = parse_color(child->Attribute("fill"));
-                new_element = new Ellipse(fill,center,radius,id);
+                new_element = new Ellipse(fill,center,radius);
             }
             if(child_name == "circle")
             {
                 Point center = {child->IntAttribute("cx"),child->IntAttribute("cy")};
                 int radius = {child->IntAttribute("r")};
                 Color fill = parse_color(child->Attribute("fill"));
-                new_element = new Circle(fill,center,radius,id);
+                new_element = new Circle(fill,center,radius);
             }
             if(child_name == "polyline")
             {
@@ -82,14 +69,14 @@ namespace svg
                     iss >> skip >> y;
                     points.push_back({x,y});
                 }
-                new_element = new Polyline(points,stroke,id);
+                new_element = new Polyline(points,stroke);
             } 
             if(child_name == "line")
             {
                 Color stroke = parse_color(child->Attribute("stroke"));
                 Point start = {child->IntAttribute("x1"),child->IntAttribute("y1")};
                 Point end = {child->IntAttribute("x2"),child->IntAttribute("y2")};
-                new_element = new Line(start,end,stroke,id);
+                new_element = new Line(start,end,stroke);
             }
             if(child_name == "polygon")
             {
@@ -109,7 +96,7 @@ namespace svg
 
                     points.push_back({x,y});
                 }
-                new_element = new Polygon(points,fill,id);
+                new_element = new Polygon(points,fill);
             }
             if(child_name == "rect")
             {
@@ -122,7 +109,7 @@ namespace svg
                                              {upper.x + width - 1,upper.y},
                                              {upper.x + width - 1,upper.y + height - 1},
                                              {upper.x,upper.y + height - 1}};              
-                new_element = new Rect(points,fill,id);
+                new_element = new Rect(points,fill);
             }
 
             if(child->Attribute("transform"))
@@ -160,6 +147,11 @@ namespace svg
                     }
                     new_element->translate({x,y});
                 }
+            }
+            if (child->Attribute("id"))
+            {
+                string id = child->Attribute("id");
+                idMap[id] = new_element;
             }
             svg_elements.push_back(new_element);
         }
