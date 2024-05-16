@@ -1,14 +1,19 @@
 
 #include <iostream>
+// #include <sstream>
+#include <map>
 #include "SVGElements.hpp"
 #include "external/tinyxml2/tinyxml2.h"
 
 using namespace std;
 using namespace tinyxml2;
 
+// WIP
+// enum class SVGType { };
+
 namespace svg
 {
-    void readSVG(const string& svg_file, Point& dimensions, vector<SVGElement *>& svg_elements)
+    void readSVG(const string &svg_file, Point &dimensions, vector<SVGElement *> &svg_elements)
     {
         XMLDocument doc;
         XMLError r = doc.LoadFile(svg_file.c_str());
@@ -20,8 +25,61 @@ namespace svg
 
         dimensions.x = xml_elem->IntAttribute("width");
         dimensions.y = xml_elem->IntAttribute("height");
-        
-        // TODO complete code -->
-        
+        map<string, SVGElement *> idMap;
+        for (XMLElement *child = xml_elem->FirstChildElement(); child != nullptr; child = child->NextSiblingElement())
+        {
+            string childName = child->Name();
+            SVGElement *newElement;
+            // Might as well get rid of this logic and treat the root element as a Group
+            if (childName == "ellipse")
+            {
+                newElement = new Ellipse(child);
+            }
+            else if (childName == "circle")
+            {
+                newElement = new Circle(child);
+            }
+            else if (childName == "polyline")
+            {
+                newElement = new Polyline(child);
+            }
+            else if (childName == "line")
+            {
+                newElement = new Line(child);
+            }
+            else if (childName == "polygon")
+            {
+                newElement = new Polygon(child);
+            }
+            else if (childName == "rect")
+            {
+                newElement = new Rect(child);
+            }
+            else if (childName == "g")
+            {
+                newElement = new Group(child, idMap);
+            }
+            else if (childName == "use")
+            {
+                newElement = use(child, idMap);
+            }
+            std::string operation;
+            Point origin = {0, 0};
+            if (child->Attribute("transform-origin"))
+            {
+                origin = parsePoint(child->Attribute("transform-origin"));
+            }
+            if (child->Attribute("transform"))
+            {
+                operation = child->Attribute("transform");
+                newElement->transform(operation, origin);
+            }
+            if (child->Attribute("id"))
+            {
+                string id = child->Attribute("id");
+                idMap[id] = newElement;
+            }
+            svg_elements.push_back(newElement);
+        }
     }
 }
