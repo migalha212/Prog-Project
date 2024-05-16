@@ -27,7 +27,7 @@ namespace svg
         virtual SVGElement* copy() = 0;
         std::string get_id();
     private:
-        std::string id;
+        
     };
 
     // Declaration of namespace functions
@@ -53,7 +53,6 @@ namespace svg
         Color fill;
         Point center;
         Point radius;
-        std::string id;
     };
 
     class Circle : public Ellipse
@@ -74,23 +73,13 @@ namespace svg
     private:
         std::vector<Point> points;
         Color stroke;
-        std::string id;
+        
     };
 
-    class Line : public SVGElement
+    class Line : public Polyline
     {
     public:
         Line(const Point &start, const Point &end, const Color &stroke);
-        void draw(PNGImage &img) const override;
-        void rotate(const Point &origin, const int &angle) override;
-        void scale(const Point &origin,const int &factor) override;
-        void translate(const Point &p) override;
-        SVGElement* copy();
-    private:
-        Point start;
-        Point end;
-        Color stroke;
-        std::string id;
     };
 
     class Polygon : public SVGElement
@@ -104,7 +93,7 @@ namespace svg
         SVGElement* copy();
     private:
     std::vector<Point> points;
-    std::string id;
+    
     Color fill;
     };
 
@@ -128,7 +117,7 @@ namespace svg
         SVGElement* copy();
         private:
         std::vector<SVGElement*> elements;
-        std::string id;
+        
     };
 }
 #endif

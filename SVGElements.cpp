@@ -61,7 +61,7 @@ namespace svg
             this->points.push_back(p);
         }
         this->stroke = stroke;
-        this->id = id;
+
         
     }
     SVGElement* Polyline::copy()
@@ -108,34 +108,9 @@ namespace svg
     }
 
    Line::Line(const Point& start,const Point& end,const Color& stroke)
-    : start(start), end(end), stroke(stroke)
+    : Polyline({start, end}, stroke)
    {
    }
-
-    SVGElement* Line::copy()
-    {
-        return new Line(start,end,stroke);
-    }
-    void Line::rotate(const Point &origin, const int &angle)
-    {
-        start = start.rotate(origin,angle);
-        end = end.rotate(origin,angle);
-    }
-
-    void Line::draw(PNGImage& img) const
-    {
-        img.draw_line(start,end,stroke);
-    }
-    void Line::scale(const Point &origin,const int &factor)
-    {
-        start = start.scale(origin,factor);
-        end = end.scale(origin,factor);
-    }
-    void Line::translate(const Point &p)
-    {
-        start = start.translate(p);
-        end = end.translate(p);
-    }
 
 
 
@@ -146,7 +121,6 @@ namespace svg
             this->points.push_back(p);
         }
         this->fill = fill;
-        this->id = id;
     }
     SVGElement* Polygon::copy()
     {
@@ -343,7 +317,7 @@ namespace svg
             }
             elements.push_back(new_element);
         }
-        this->id = id;
+
     }
     Group::Group(std::vector<SVGElement*> elements)
     {
@@ -351,7 +325,7 @@ namespace svg
         {
             this->elements.push_back(element);
         }
-        this->id = id;
+
     }
     SVGElement* Group::copy()
     {
