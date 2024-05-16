@@ -88,30 +88,9 @@ namespace svg
         }
     }
 
-   Line::Line(const Point& start,const Point& end,const Color& stroke) : start(start), end(end), stroke(stroke)
+   Line::Line(const Point& start,const Point& end,const Color& stroke) : Polyline({start,end},stroke)
    {
    }
-
-    void Line::rotate(const Point &origin, const int &angle)
-    {
-        start = start.rotate(origin,angle);
-        end = end.rotate(origin,angle);
-    }
-
-    void Line::draw(PNGImage& img) const
-    {
-        img.draw_line(start,end,stroke);
-    }
-    void Line::scale(const Point &origin,const int &factor)
-    {
-        start = start.scale(origin,factor);
-        end = end.scale(origin,factor);
-    }
-    void Line::translate(const int &x,const int &y)
-    {
-        start = start.translate({x,y});
-        end = end.translate({x,y});
-    }
 
 
 

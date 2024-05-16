@@ -64,18 +64,10 @@ namespace svg
         Color stroke;        
     };
 
-    class Line : public SVGElement
+    class Line : public Polyline
     {
     public:
         Line(const Point &start, const Point &end, const Color &stroke);
-        void draw(PNGImage &img) const override;
-        void rotate(const Point &origin, const int &angle) override;
-        void scale(const Point &origin,const int &factor) override;
-        void translate(const int &x,const int &y) override;
-    private:
-        Point start;
-        Point end;
-        Color stroke;
     };
 
     class Polygon : public SVGElement
