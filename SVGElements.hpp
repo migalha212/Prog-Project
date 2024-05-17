@@ -31,12 +31,12 @@ namespace svg
         virtual void rotate(const Point &origin,const int &angle) = 0;
 
         /// @brief calls for a shape to be moved.
-        /// @param p translation direction.
+        /// @param p translation offset.
         virtual void translate(const Point &p) = 0;
 
         /// @brief calls for a shape to be scaled.
-        /// @param origin scalling origin.
-        /// @param factor scalling factor.
+        /// @param origin scaling origin.
+        /// @param factor scaling factor.
         virtual void scale(const Point &origin,const int &factor) = 0;
 
         /// @brief calls for a shape to be copied.
@@ -61,8 +61,8 @@ namespace svg
 
     /// @brief calls for a copy of an element from its id.
     /// @param xml_elem element.
-    /// @param idMap vector of elements with an id and respective id.
-    /// @return pointer with a copy of the element.
+    /// @param idMap map with ids as keys and with pointers to svg elements as values.
+    /// @return pointer to a copy of the element.
     SVGElement *use(tinyxml2::XMLElement *xml_elem, std::map<std::string, SVGElement*> &idMap);
 
     class Ellipse : public SVGElement
@@ -85,12 +85,12 @@ namespace svg
         void rotate(const Point &origin, const int &angle) override;
 
         /// @brief calls for an ellipse to be scaled.
-        /// @param origin scalling origin.
-        /// @param factor scalling factor.
+        /// @param origin scaling origin.
+        /// @param factor scaling factor.
         void scale(const Point &origin,const int &factor) override;
         
         /// @brief calls for an ellipse to be moved.
-        /// @param p translation direction.
+        /// @param p translation offset.
         void translate(const Point &p) override;
 
         /// @brief calls for an ellipse to be copied.
@@ -119,7 +119,7 @@ namespace svg
     public:
 
         /// @brief polyline constructor.
-        /// @param points vector which have polyline vertices coordinates.
+        /// @param points vector which has polyline vertices coordinates.
         /// @param stroke line color.
         Polyline(const std::vector<Point> &points, const Color &stroke);
 
@@ -133,12 +133,12 @@ namespace svg
         void rotate(const Point &origin, const int &angle) override;
 
         /// @brief calls for a polyline to be scaled.
-        /// @param origin scalling origin.
-        /// @param factor scalling factor.
+        /// @param origin scaling origin.
+        /// @param factor scaling factor.
         void scale(const Point &origin,const int &factor) override;
 
         /// @brief calls for a polyline to be moved.
-        /// @param p translation direction.
+        /// @param p translation offset.
         void translate(const Point &p) override;
 
         /// @brief calls for a polyline to be copied.
@@ -167,7 +167,7 @@ namespace svg
     public:
 
         /// @brief polygon constructor.
-        /// @param points vector which have vertices coordinates.
+        /// @param points vector which has vertices coordinates.
         /// @param fill fill color.
         Polygon(const std::vector<Point> &points, const Color &fill);
 
@@ -181,12 +181,12 @@ namespace svg
         void rotate(const Point &origin, const int &angle) override;
 
         /// @brief calls for a polygon to be scaled.
-        /// @param origin scalling origin.
-        /// @param factor scalling factor.
+        /// @param origin scaling origin.
+        /// @param factor scaling factor.
         void scale(const Point &origin,const int &factor) override;
 
         /// @brief calls for a polygon to be moved.
-        /// @param p translation direction.
+        /// @param p translation offset.
         void translate(const Point &p) override;
 
         /// @brief calls for a polygon to be copied.
@@ -204,7 +204,7 @@ namespace svg
     public:
 
         /// @brief rect constructor.
-        /// @param points vector which have rect vertices coordinates.
+        /// @param points vector which has rect vertices coordinates.
         /// @param fill fill color.
         Rect(const std::vector<Point> &points, const Color &fill);
     };
@@ -239,12 +239,12 @@ namespace svg
         void rotate(const Point &origin, const int &angle) override;
 
         /// @brief calls for a group to be scaled.
-        /// @param origin scalling origin.
-        /// @param factor scalling factor.
+        /// @param origin scaling origin.
+        /// @param factor scaling factor.
         void scale(const Point &origin,const int &factor) override;
 
         /// @brief calls for a group to be moved.
-        /// @param p translation direction.
+        /// @param p translation offset.
         void translate(const Point &p) override;
 
         /// @brief calls for a group to be copied.
