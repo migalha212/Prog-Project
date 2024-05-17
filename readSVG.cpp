@@ -6,12 +6,15 @@
 #include <sstream>
 #include <fstream>
 
-
 using namespace std;
 using namespace tinyxml2;
 
 namespace svg
 {
+    /// @brief Read svg elements from a file to a vector
+    /// @param svg_file Filename
+    /// @param dimensions Height and width of the picture
+    /// @param svg_elements Vector to store element pointers in
     void readSVG(const string& svg_file, Point& dimensions, vector<SVGElement *>& svg_elements)
     {
         XMLDocument doc;
