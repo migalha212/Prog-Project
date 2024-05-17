@@ -11,10 +11,6 @@ using namespace tinyxml2;
 
 namespace svg
 {
-    /// @brief Read svg elements from a file to a vector
-    /// @param svg_file Filename
-    /// @param dimensions Height and width of the picture
-    /// @param svg_elements Vector to store element pointers in
     void readSVG(const string &svg_file, Point &dimensions, vector<SVGElement *> &svg_elements)
     {
         XMLDocument doc;
@@ -112,15 +108,15 @@ namespace svg
                 int height = child->IntAttribute("height");
                 Point upper = {child->IntAttribute("x"), child->IntAttribute("y")};
                 // The order of points is important! (because of the drawing functions)
-                std::vector<Point> points = {upper,                                         // top-left
-                                             {upper.x + width - 1, upper.y},                // top-right
-                                             {upper.x + width - 1, upper.y + height - 1},   // bottom-right
-                                             {upper.x, upper.y + height - 1}};              // bottom-left
+                std::vector<Point> points = {upper,                                       // top-left
+                                             {upper.x + width - 1, upper.y},              // top-right
+                                             {upper.x + width - 1, upper.y + height - 1}, // bottom-right
+                                             {upper.x, upper.y + height - 1}};            // bottom-left
                 new_element = new Rect(points, fill);
             }
-            
+
             // Treating the transformations
-            if (child->Attribute("transform"))    
+            if (child->Attribute("transform"))
             {
                 Point origin = {0, 0};
                 if (child->Attribute("transform-origin"))

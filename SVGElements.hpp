@@ -44,10 +44,10 @@ namespace svg
         virtual SVGElement *copy() = 0;
     };
 
-    /// @brief calls for the SVG reading logic.
-    /// @param svg_file SVG input file.
-    /// @param dimensions file dimensions.
-    /// @param svg_elements vector that stores all input elements.
+    /// @brief Reads svg elements from a file to a vector
+    /// @param svg_file Filename (path) to the input file
+    /// @param dimensions Height and width of the picture
+    /// @param svg_elements Vector to store element pointers in
     void readSVG(const std::string &svg_file,
                  Point &dimensions,
                  std::vector<SVGElement *> &svg_elements);

@@ -11,7 +11,7 @@ namespace svg
     SVGElement *use(XMLElement *xml_elem, map<string, SVGElement *> &idMap)
     {
         string href = xml_elem->Attribute("href");
-        href.erase(0, 1);   // removing the '#'
+        href.erase(0, 1); // removing the '#'
         SVGElement *newElement = idMap[href]->copy();
         return newElement;
     }
