@@ -43,3 +43,6 @@ output/
 svgtopng
 test
 xmldump
+
+# Delivery archive
+delivery.zip
