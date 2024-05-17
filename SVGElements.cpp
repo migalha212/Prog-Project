@@ -1,5 +1,5 @@
 #include "SVGElements.hpp"
-using namespace svg;
+
 using namespace std;
 using namespace tinyxml2;
 namespace svg
@@ -54,7 +54,7 @@ namespace svg
 
 
     //  Polyline
-    Polyline::Polyline(const std::vector<Point> &points, const Color &stroke)
+    Polyline::Polyline(const vector<Point> &points, const Color &stroke)
     {
         for(Point p : points)
         {
@@ -107,7 +107,7 @@ namespace svg
 
 
     //  Polygon
-    Polygon::Polygon(const std::vector<Point> &points, const Color &fill)
+    Polygon::Polygon(const vector<Point> &points, const Color &fill)
     {
         for(Point p : points)
         {
@@ -147,7 +147,7 @@ namespace svg
 
 
     //  Rect
-    Rect::Rect(const std::vector<Point> &points, const Color &fill) 
+    Rect::Rect(const vector<Point> &points, const Color &fill) 
     : Polygon(points,fill) {}
 
 
@@ -184,11 +184,11 @@ namespace svg
             element->translate(p);
         }
     }
-    Group:: Group(tinyxml2::XMLElement *Root, map<string, SVGElement*> &idMap)          
+    Group:: Group(XMLElement *Root, map<string, SVGElement*> &idMap)          
     {
-        for(tinyxml2::XMLElement *child = Root->FirstChildElement(); child != nullptr; child = child->NextSiblingElement())         
+        for(XMLElement *child = Root->FirstChildElement(); child != nullptr; child = child->NextSiblingElement())         
         {
-            std::string child_name = child->Name();         
+            string child_name = child->Name();         
             SVGElement *new_element;                        
             if(child_name == "use")
             {
@@ -215,10 +215,10 @@ namespace svg
             else if(child_name == "polyline")
             {
                 Color stroke = parse_color(child->Attribute("stroke"));
-                std::istringstream iss(child->Attribute("points"));
+                istringstream iss(child->Attribute("points"));
                 int x,y = 0;
                 char skip;
-                std::vector<Point> points = {};
+                vector<Point> points = {};
                 while(iss >> x >> skip >> y){
                     points.push_back({x,y});
                 }
@@ -234,10 +234,10 @@ namespace svg
             else if(child_name == "polygon")
             {
                 Color fill = parse_color(child->Attribute("fill"));
-                std::istringstream iss(child->Attribute("points"));
+                istringstream iss(child->Attribute("points"));
                 int x,y = 0;
                 char skip;
-                std::vector<Point> points = {};
+                vector<Point> points = {};
                 while(!iss.eof())
                 {
                     iss >> x;
@@ -258,7 +258,7 @@ namespace svg
                 int height = child->IntAttribute("height");
                 Point upper = {child->IntAttribute("x"),child->IntAttribute("y")};
 
-                std::vector<Point> points =  {upper,
+                vector<Point> points =  {upper,
                                              {upper.x + width - 1,upper.y},
                                              {upper.x + width - 1,upper.y + height - 1},
                                              {upper.x,upper.y + height - 1}};              
@@ -270,28 +270,28 @@ namespace svg
                 Point origin = {0,0};
                 if(child->Attribute("transform-origin"))
                 {
-                    std::istringstream iss(child->Attribute("transform-origin"));
+                    istringstream iss(child->Attribute("transform-origin"));
                     int x,y;
                     iss >> x >> y;
                     origin = {x,y};
                 }
-                std::string transform = child->Attribute("transform");
-                std::string opp = transform.substr(0,transform.find('('));
+                string transform = child->Attribute("transform");
+                string opp = transform.substr(0,transform.find('('));
                 if(opp == "rotate")
                 {
-                    std::istringstream valstr(transform.substr(transform.find('(')+1,5));
+                    istringstream valstr(transform.substr(transform.find('(')+1,5));
                     int value = 0; valstr >> value;
                     new_element->rotate(origin,value);
                 }
                 if(opp == "scale")
                 {
-                    std::istringstream valstr(transform.substr(transform.find('(')+1,5));
+                    istringstream valstr(transform.substr(transform.find('(')+1,5));
                     int value = 0; valstr >> value;
                     new_element->scale(origin,value);
                 }
                 if(opp == "translate")
                 {
-                    std::istringstream valstr(transform.substr(transform.find('(')+1,12));
+                    istringstream valstr(transform.substr(transform.find('(')+1,12));
                     int x,y = 0; valstr >> x >> y;
                     if(valstr.fail())
                     {
@@ -309,7 +309,7 @@ namespace svg
             elements.push_back(new_element);
         }
     }
-    Group::Group(std::vector<SVGElement*> elements)         
+    Group::Group(vector<SVGElement*> elements)         
     {
         for(SVGElement* element : elements)
         {
@@ -318,7 +318,7 @@ namespace svg
     }
     SVGElement* Group::copy()           //group copy function
     {
-        std::vector<SVGElement*> elements;
+        vector<SVGElement*> elements;
         for(SVGElement* element : this->elements)
         {
             elements.push_back(element->copy());            //copy all group elements 
