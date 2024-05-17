@@ -24,7 +24,8 @@ namespace svg
 
         dimensions.x = xml_elem->IntAttribute("width");
         dimensions.y = xml_elem->IntAttribute("height");
-        // TODO complete code -->
+        
+        
         map<string, SVGElement *> idMap;
         for(XMLElement *child = xml_elem->FirstChildElement(); child != nullptr; child = child->NextSiblingElement())
         {   

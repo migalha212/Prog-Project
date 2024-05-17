@@ -4,10 +4,10 @@ using namespace std;
 using namespace tinyxml2;
 namespace svg
 {
-    // These must be defined!
     SVGElement::SVGElement() {}
     SVGElement::~SVGElement() {}
 
+    //  Use
     SVGElement *use(XMLElement *xml_elem, map<string, SVGElement*> &idMap)
     {
         string href = xml_elem->Attribute("href");
@@ -16,13 +16,12 @@ namespace svg
         return newElement;
     }
 
-    // Ellipse (initial code provided)
+
+    //  Ellipse 
     Ellipse::Ellipse(const Color &fill,
                      const Point &center,
                      const Point &radius)
-        : fill(fill), center(center), radius(radius)
-    {
-    }
+        : fill(fill), center(center), radius(radius){}
     void Ellipse::draw(PNGImage &img) const
     {
         img.draw_ellipse(center, radius, fill);
@@ -45,15 +44,16 @@ namespace svg
     {
         return new Ellipse(fill,center,radius);
     }
-    // @todo provide the implementation of SVGElement derived classes
-    // HERE -->
+    
+
+    //  Circle
     Circle::Circle(const Color &fill,
                    const Point &center,
                    const int &radius)
-        : Ellipse(fill,center,{radius,radius})
-    {
-    }  
+        : Ellipse(fill,center,{radius,radius}){}  
 
+
+    //  Polyline
     Polyline::Polyline(const std::vector<Point> &points, const Color &stroke)
     {
         for(Point p : points)
@@ -61,16 +61,11 @@ namespace svg
             this->points.push_back(p);
         }
         this->stroke = stroke;
-
-        
     }
     SVGElement* Polyline::copy()
     {
         return new Polyline(points,stroke);
     }
-
-    
-
     void Polyline::draw(PNGImage &img) const
     {
         Point a = points[0];
@@ -80,11 +75,9 @@ namespace svg
              continue;
             }
             img.draw_line(a,b,stroke);
-            a = b;
-            
+            a = b; 
         }
     }
-
     void Polyline::rotate(const Point &origin, const int &angle)
     {
         for(Point &p : this->points)
@@ -107,13 +100,13 @@ namespace svg
         }
     }
 
+
+    //  Line
    Line::Line(const Point& start,const Point& end,const Color& stroke)
-    : Polyline({start, end}, stroke)
-   {
-   }
+    : Polyline({start, end}, stroke){}
 
 
-
+    //  Polygon
     Polygon::Polygon(const std::vector<Point> &points, const Color &fill)
     {
         for(Point p : points)
@@ -126,7 +119,6 @@ namespace svg
     {
         return new Polygon(points,fill);
     }
-
     void Polygon::rotate(const Point &origin, const int &angle)
     {
         for(Point &p : points)
@@ -148,22 +140,22 @@ namespace svg
             p1 = p1.translate(p);
         }
     }
-
     void Polygon::draw(PNGImage &img) const
     {
         img.draw_polygon(points,fill);
     }
-    Rect::Rect(const std::vector<Point> &points, const Color &fill) : Polygon(points,fill)
-    {   
-    }
 
 
+    //  Rect
+    Rect::Rect(const std::vector<Point> &points, const Color &fill) 
+    : Polygon(points,fill) {}
 
-    void Group::add_element(SVGElement* element)
+
+    //  Group
+    void Group::add_element(SVGElement* element) // group add_element
     {
-        elements.push_back(element);
+        elements.push_back(element); // store SVGElement in SVGElements vector
     }
-
     void Group::draw(PNGImage &img) const
     {
         for(SVGElement* element : elements)
@@ -178,7 +170,6 @@ namespace svg
             element->rotate(origin,angle);
         }
     }
-
     void Group::scale(const Point &origin,const int &factor)
     {
         for(SVGElement* element : elements)
@@ -193,12 +184,12 @@ namespace svg
             element->translate(p);
         }
     }
-    Group:: Group(tinyxml2::XMLElement *Root, map<string, SVGElement*> &idMap)
+    Group:: Group(tinyxml2::XMLElement *Root, map<string, SVGElement*> &idMap)          
     {
-        for(tinyxml2::XMLElement *child = Root->FirstChildElement(); child != nullptr; child = child->NextSiblingElement())
+        for(tinyxml2::XMLElement *child = Root->FirstChildElement(); child != nullptr; child = child->NextSiblingElement())         
         {
-            std::string child_name = child->Name();
-            SVGElement *new_element;
+            std::string child_name = child->Name();         
+            SVGElement *new_element;                        
             if(child_name == "use")
             {
                 new_element = use(child, idMap);
@@ -317,30 +308,28 @@ namespace svg
             }
             elements.push_back(new_element);
         }
-
     }
-    Group::Group(std::vector<SVGElement*> elements)
+    Group::Group(std::vector<SVGElement*> elements)         
     {
         for(SVGElement* element : elements)
         {
-            this->elements.push_back(element);
+            this->elements.push_back(element);          //store all input elements in group elements  
         }
-
     }
-    SVGElement* Group::copy()
+    SVGElement* Group::copy()           //group copy function
     {
         std::vector<SVGElement*> elements;
         for(SVGElement* element : this->elements)
         {
-            elements.push_back(element->copy());
+            elements.push_back(element->copy());            //copy all group elements 
         }
-        return new Group(elements);
+        return new Group(elements);         //return a group pointer  
     }
-    Group::~Group()
+    Group::~Group()         //group destructor function
     {
-        for(SVGElement* element : elements)
+        for(SVGElement* element : elements)         
         {
-            delete element;
+            delete element;         //delete all element pointers of vector elements
         }
     }
 }
