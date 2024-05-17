@@ -18,34 +18,85 @@ namespace svg
     {
 
     public:
-        SVGElement();
-        virtual ~SVGElement();
+        SVGElement();       //required constructor.
+        virtual ~SVGElement();          //required destructor.
+        
+        /// @brief calls for a shape to be drawn in the png image.
+        /// @param img canvas which will be drawn on.
         virtual void draw(PNGImage &img) const = 0;
+
+        /// @brief calls for a shape to be rotated.
+        /// @param origin rotation origin.
+        /// @param angle  rotation angle in degrees.
         virtual void rotate(const Point &origin,const int &angle) = 0;
+
+        /// @brief calls for a shape to be moved.
+        /// @param p translation direction.
         virtual void translate(const Point &p) = 0;
+
+        /// @brief calls for a shape to be scaled.
+        /// @param origin scalling origin.
+        /// @param factor scalling factor.
         virtual void scale(const Point &origin,const int &factor) = 0;
+
+        /// @brief calls for a shape to be copied.
+        /// @return pointer to the copy of the shape.
         virtual SVGElement* copy() = 0;
     };
 
-    // Declaration of namespace functions
-    // readSVG -> implement it in readSVG.cpp
-    // convert -> already given (DO NOT CHANGE) in convert.cpp
-
+    /// @brief calls for the SVG reading logic.
+    /// @param svg_file SVG input file.
+    /// @param dimensions file dimensions.
+    /// @param svg_elements vector that stores input elements.
     void readSVG(const std::string &svg_file,
                  Point &dimensions,
                  std::vector<SVGElement *> &svg_elements);
+
+    
+    /// @brief calls for a SVG to PNG conversion.
+    /// @param svg_file SVG input file.
+    /// @param png_file PNG output file.
     void convert(const std::string &svg_file,
                  const std::string &png_file);
+
+    /// @brief calls for a copy of an element from its id.
+    /// @param xml_elem element.
+    /// @param idMap vector of elements with an id and respective id.
+    /// @return pointer with a copy of the element.
     SVGElement *use(tinyxml2::XMLElement *xml_elem, std::map<std::string, SVGElement*> &idMap);
+
     class Ellipse : public SVGElement
     {
     public:
+
+        /// @brief ellipse constructor.
+        /// @param fill fill color.
+        /// @param center ellipse center point.
+        /// @param radius ellipse radius.
         Ellipse(const Color &fill, const Point &center, const Point &radius);
+
+        /// @brief calls for an ellipse to be drawn in the png image.
+        /// @param img canvas which will be drawn on.
         void draw(PNGImage &img) const override;
+
+        /// @brief calls for an ellipse to be rotated.
+        /// @param origin rotation origin.
+        /// @param angle  rotation angle in degrees.
         void rotate(const Point &origin, const int &angle) override;
+
+        /// @brief calls for an ellipse to be scaled.
+        /// @param origin scalling origin.
+        /// @param factor scalling factor.
         void scale(const Point &origin,const int &factor) override;
+        
+        /// @brief calls for an ellipse to be moved.
+        /// @param p translation direction.
         void translate(const Point &p) override;
+
+        /// @brief calls for an ellipse to be copied.
+        /// @return pointer to the copy of the ellipse.
         SVGElement* copy();
+
     private:
         Color fill;
         Point center;
@@ -55,18 +106,45 @@ namespace svg
     class Circle : public Ellipse
     {
     public:
+
+        /// @brief circle constructor.
+        /// @param fill fill color.
+        /// @param center circle center point.
+        /// @param radius circle radius.
         Circle(const Color &fill, const Point &center, const int &radius);
     };
 
     class Polyline : public SVGElement
     {
     public:
+
+        /// @brief polyline constructor.
+        /// @param points vertices coordinates.
+        /// @param stroke line color.
         Polyline(const std::vector<Point> &points, const Color &stroke);
+
+        /// @brief calls for a polyline to be drawn in the png image.
+        /// @param img canvas which will be drawn on.
         void draw(PNGImage &img) const override;
+
+        /// @brief calls for a polyline to be rotated.
+        /// @param origin rotation origin.
+        /// @param angle  rotation angle in degrees.
         void rotate(const Point &origin, const int &angle) override;
+
+        /// @brief calls for a polyline to be scaled.
+        /// @param origin scalling origin.
+        /// @param factor scalling factor.
         void scale(const Point &origin,const int &factor) override;
+
+        /// @brief calls for a polyline to be moved.
+        /// @param p translation direction.
         void translate(const Point &p) override;
+
+        /// @brief calls for a polyline to be copied.
+        /// @return pointer to the copy of the polyline.
         SVGElement* copy();
+
     private:
         std::vector<Point> points;
         Color stroke;
@@ -76,18 +154,45 @@ namespace svg
     class Line : public Polyline
     {
     public:
+
+        /// @brief line constructor.
+        /// @param start start point.
+        /// @param end end point.
+        /// @param stroke line color.
         Line(const Point &start, const Point &end, const Color &stroke);
     };
 
     class Polygon : public SVGElement
     {
     public:
+
+        /// @brief polygon constructor.
+        /// @param points vertices coordinates.
+        /// @param fill fill color.
         Polygon(const std::vector<Point> &points, const Color &fill);
+
+        /// @brief calls for a polygon to be drawn in the png image.
+        /// @param img canvas which will be drawn on.
         void draw(PNGImage &img) const override;
+
+        /// @brief calls for a polygon to be rotated.
+        /// @param origin rotation origin.
+        /// @param angle  rotation angle in degrees.
         void rotate(const Point &origin, const int &angle) override;
+
+        /// @brief calls for a polygon to be scaled.
+        /// @param origin scalling origin.
+        /// @param factor scalling factor.
         void scale(const Point &origin,const int &factor) override;
+
+        /// @brief calls for a polygon to be moved.
+        /// @param p translation direction.
         void translate(const Point &p) override;
+
+        /// @brief calls for a polygon to be copied.
+        /// @return pointer to the copy of the polygon.
         SVGElement* copy();
+
     private:
     std::vector<Point> points;
     
@@ -97,20 +202,53 @@ namespace svg
     class Rect : public Polygon
     {
     public:
+
+        /// @brief rect constructor.
+        /// @param points rect vertices coordinates.
+        /// @param fill fill color.
         Rect(const std::vector<Point> &points, const Color &fill);
     };
 
     class Group : public SVGElement
     {
         public:
+
+        /// @brief group constructor.
+        /// @param Root root element. !!!(CHECK)!!!!!!!!!!!!!!!!!!!!!!!!
+        /// @param idMap vector of elements with an id and respective id.
         Group(tinyxml2::XMLElement *Root, std::map<std::string, SVGElement*> &idMap);
+
+        /// @brief group constructor.
+        /// @param elements vector with group elements.
         Group(std::vector<SVGElement *> elements);
+
+        /// @brief group destructor.
         ~Group();
+
+        /// @brief add element to the elements vector.
+        /// @param element element to add.
         void add_element(SVGElement* element);
+
+        /// @brief calls for a group to be drawn in the png image.
+        /// @param img canvas which will be drawn on.
         void draw(PNGImage &img) const override;
+
+        /// @brief calls for a group to be rotated.
+        /// @param origin rotation origin.
+        /// @param angle  rotation angle in degrees.
         void rotate(const Point &origin, const int &angle) override;
+
+        /// @brief calls for a group to be scaled.
+        /// @param origin scalling origin.
+        /// @param factor scalling factor.
         void scale(const Point &origin,const int &factor) override;
+
+        /// @brief calls for a group to be moved.
+        /// @param p translation direction.
         void translate(const Point &p) override;
+
+        /// @brief calls for a group to be copied.
+        /// @return pointer to the copy of the group.
         SVGElement* copy();
         private:
         std::vector<SVGElement*> elements;
