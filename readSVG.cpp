@@ -28,7 +28,7 @@ namespace svg
         dimensions.x = xml_elem->IntAttribute("width");
         dimensions.y = xml_elem->IntAttribute("height");
 
-        map<string, SVGElement *> idMap;
+        map<string, SVGElement *> idMap; // Map, containing objects according to their ids
         for (XMLElement *child = xml_elem->FirstChildElement(); child != nullptr; child = child->NextSiblingElement())
         {
             string child_name = child->Name();
@@ -60,12 +60,12 @@ namespace svg
                 Color stroke = parse_color(child->Attribute("stroke"));
                 istringstream iss(child->Attribute("points"));
                 int x, y = 0;
-                char skip;
+                char skip; // used to skip the comma
                 vector<Point> points = {};
                 while (!iss.eof())
                 {
                     iss >> x;
-                    if (iss.fail())
+                    if (iss.fail()) // treating errors is required because of weird formatting (unneeded commas, for instance)
                     {
                         iss.clear();
                         iss.ignore(1);
@@ -88,12 +88,12 @@ namespace svg
                 Color fill = parse_color(child->Attribute("fill"));
                 istringstream iss(child->Attribute("points"));
                 int x, y = 0;
-                char skip;
+                char skip; // used to skip the comma
                 vector<Point> points = {};
                 while (!iss.eof())
                 {
                     iss >> x;
-                    if (iss.fail())
+                    if (iss.fail()) // treating errors is required because of weird formatting (unneeded commas, for instance)
                     {
                         iss.clear();
                         iss.ignore(1);
@@ -111,15 +111,16 @@ namespace svg
                 int width = child->IntAttribute("width");
                 int height = child->IntAttribute("height");
                 Point upper = {child->IntAttribute("x"), child->IntAttribute("y")};
-
-                std::vector<Point> points = {upper,
-                                             {upper.x + width - 1, upper.y},
-                                             {upper.x + width - 1, upper.y + height - 1},
-                                             {upper.x, upper.y + height - 1}};
+                // The order of points is important! (because of the drawing functions)
+                std::vector<Point> points = {upper,                                         // top-left
+                                             {upper.x + width - 1, upper.y},                // top-right
+                                             {upper.x + width - 1, upper.y + height - 1},   // bottom-right
+                                             {upper.x, upper.y + height - 1}};              // bottom-left
                 new_element = new Rect(points, fill);
             }
-
-            if (child->Attribute("transform"))
+            
+            // Treating the transformations
+            if (child->Attribute("transform"))    
             {
                 Point origin = {0, 0};
                 if (child->Attribute("transform-origin"))

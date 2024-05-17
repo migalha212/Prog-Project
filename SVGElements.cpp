@@ -11,7 +11,7 @@ namespace svg
     SVGElement *use(XMLElement *xml_elem, map<string, SVGElement *> &idMap)
     {
         string href = xml_elem->Attribute("href");
-        href.erase(0, 1);
+        href.erase(0, 1);   // removing the '#'
         SVGElement *newElement = idMap[href]->copy();
         return newElement;
     }
@@ -146,9 +146,9 @@ namespace svg
         : Polygon(points, fill) {}
 
     //  Group
-    void Group::add_element(SVGElement *element) // group add_element
+    void Group::add_element(SVGElement *element)
     {
-        elements.push_back(element); // store SVGElement in SVGElements vector
+        elements.push_back(element);
     }
     void Group::draw(PNGImage &img) const
     {
@@ -157,6 +157,7 @@ namespace svg
             element->draw(img);
         }
     }
+    // Any transformations applied to a group are applied to all of the elements
     void Group::rotate(const Point &origin, const int &angle)
     {
         for (SVGElement *element : elements)
@@ -180,6 +181,7 @@ namespace svg
     }
     Group::Group(XMLElement *Root, map<string, SVGElement *> &idMap)
     {
+        // This is the same exact reading logic like in readSVG
         for (XMLElement *child = Root->FirstChildElement(); child != nullptr; child = child->NextSiblingElement())
         {
             string child_name = child->Name();
@@ -314,23 +316,23 @@ namespace svg
     {
         for (SVGElement *element : elements)
         {
-            this->elements.push_back(element); // store all input elements in group elements
+            this->elements.push_back(element);
         }
     }
-    SVGElement *Group::copy() // group copy function
+    SVGElement *Group::copy()
     {
         vector<SVGElement *> elements;
         for (SVGElement *element : this->elements)
         {
-            elements.push_back(element->copy()); // copy all group elements
+            elements.push_back(element->copy());
         }
-        return new Group(elements); // return a group pointer
+        return new Group(elements);
     }
-    Group::~Group() // group destructor function
+    Group::~Group()
     {
         for (SVGElement *element : elements)
         {
-            delete element; // delete all element pointers of vector elements
+            delete element;
         }
     }
 }
