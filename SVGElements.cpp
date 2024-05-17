@@ -65,15 +65,9 @@ namespace svg
     }
     void Polyline::draw(PNGImage &img) const
     {
-        Point a = points[0];
-        for (Point b : points)
+        for (unsigned int i = 0; i < points.size() - 1; i++)
         {
-            if (a.x == b.x && a.y == b.y)
-            {
-                continue;
-            }
-            img.draw_line(a, b, stroke);
-            a = b;
+            img.draw_line(points[i], points[i + 1], stroke);
         }
     }
     void Polyline::rotate(const Point &origin, const int &angle)
