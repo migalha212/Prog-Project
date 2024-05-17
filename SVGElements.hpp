@@ -18,9 +18,9 @@ namespace svg
     {
 
     public:
-        SVGElement();       //required constructor.
-        virtual ~SVGElement();          //required destructor.
-        
+        SVGElement();          // required constructor.
+        virtual ~SVGElement(); // required destructor.
+
         /// @brief calls for a shape to be drawn in the png image.
         /// @param img canvas which will be drawn on.
         virtual void draw(PNGImage &img) const = 0;
@@ -28,7 +28,7 @@ namespace svg
         /// @brief calls for a shape to be rotated.
         /// @param origin rotation origin.
         /// @param angle  rotation angle in degrees.
-        virtual void rotate(const Point &origin,const int &angle) = 0;
+        virtual void rotate(const Point &origin, const int &angle) = 0;
 
         /// @brief calls for a shape to be moved.
         /// @param p translation offset.
@@ -37,11 +37,11 @@ namespace svg
         /// @brief calls for a shape to be scaled.
         /// @param origin scaling origin.
         /// @param factor scaling factor.
-        virtual void scale(const Point &origin,const int &factor) = 0;
+        virtual void scale(const Point &origin, const int &factor) = 0;
 
         /// @brief calls for a shape to be copied.
         /// @return pointer to the copy of the shape.
-        virtual SVGElement* copy() = 0;
+        virtual SVGElement *copy() = 0;
     };
 
     /// @brief calls for the SVG reading logic.
@@ -52,7 +52,6 @@ namespace svg
                  Point &dimensions,
                  std::vector<SVGElement *> &svg_elements);
 
-    
     /// @brief calls for a SVG to PNG conversion.
     /// @param svg_file SVG input file.
     /// @param png_file PNG output file.
@@ -63,12 +62,11 @@ namespace svg
     /// @param xml_elem element.
     /// @param idMap map with ids as keys and with pointers to svg elements as values.
     /// @return pointer to a copy of the element.
-    SVGElement *use(tinyxml2::XMLElement *xml_elem, std::map<std::string, SVGElement*> &idMap);
+    SVGElement *use(tinyxml2::XMLElement *xml_elem, std::map<std::string, SVGElement *> &idMap);
 
     class Ellipse : public SVGElement
     {
     public:
-
         /// @brief ellipse constructor.
         /// @param fill fill color.
         /// @param center ellipse center point.
@@ -87,15 +85,15 @@ namespace svg
         /// @brief calls for an ellipse to be scaled.
         /// @param origin scaling origin.
         /// @param factor scaling factor.
-        void scale(const Point &origin,const int &factor) override;
-        
+        void scale(const Point &origin, const int &factor) override;
+
         /// @brief calls for an ellipse to be moved.
         /// @param p translation offset.
         void translate(const Point &p) override;
 
         /// @brief calls for an ellipse to be copied.
         /// @return pointer to the copy of the ellipse.
-        SVGElement* copy();
+        SVGElement *copy();
 
     private:
         Color fill;
@@ -106,7 +104,6 @@ namespace svg
     class Circle : public Ellipse
     {
     public:
-
         /// @brief circle constructor.
         /// @param fill fill color.
         /// @param center circle center point.
@@ -117,7 +114,6 @@ namespace svg
     class Polyline : public SVGElement
     {
     public:
-
         /// @brief polyline constructor.
         /// @param points vector which has polyline vertices coordinates.
         /// @param stroke line color.
@@ -135,7 +131,7 @@ namespace svg
         /// @brief calls for a polyline to be scaled.
         /// @param origin scaling origin.
         /// @param factor scaling factor.
-        void scale(const Point &origin,const int &factor) override;
+        void scale(const Point &origin, const int &factor) override;
 
         /// @brief calls for a polyline to be moved.
         /// @param p translation offset.
@@ -143,18 +139,16 @@ namespace svg
 
         /// @brief calls for a polyline to be copied.
         /// @return pointer to the copy of the polyline.
-        SVGElement* copy();
+        SVGElement *copy();
 
     private:
         std::vector<Point> points;
         Color stroke;
-        
     };
 
     class Line : public Polyline
     {
     public:
-
         /// @brief line constructor.
         /// @param start line start point.
         /// @param end line end point.
@@ -165,7 +159,6 @@ namespace svg
     class Polygon : public SVGElement
     {
     public:
-
         /// @brief polygon constructor.
         /// @param points vector which has vertices coordinates.
         /// @param fill fill color.
@@ -183,7 +176,7 @@ namespace svg
         /// @brief calls for a polygon to be scaled.
         /// @param origin scaling origin.
         /// @param factor scaling factor.
-        void scale(const Point &origin,const int &factor) override;
+        void scale(const Point &origin, const int &factor) override;
 
         /// @brief calls for a polygon to be moved.
         /// @param p translation offset.
@@ -191,18 +184,17 @@ namespace svg
 
         /// @brief calls for a polygon to be copied.
         /// @return pointer to the copy of the polygon.
-        SVGElement* copy();
+        SVGElement *copy();
 
     private:
-    std::vector<Point> points;
-    
-    Color fill;
+        std::vector<Point> points;
+
+        Color fill;
     };
 
     class Rect : public Polygon
     {
     public:
-
         /// @brief rect constructor.
         /// @param points vector which has rect vertices coordinates.
         /// @param fill fill color.
@@ -211,12 +203,11 @@ namespace svg
 
     class Group : public SVGElement
     {
-        public:
-
+    public:
         /// @brief group constructor with root element.
         /// @param Root XMLElement representing a group to be read.
         /// @param idMap vector of elements with an id and respective id.
-        Group(tinyxml2::XMLElement *Root, std::map<std::string, SVGElement*> &idMap);
+        Group(tinyxml2::XMLElement *Root, std::map<std::string, SVGElement *> &idMap);
 
         /// @brief group constructor.
         /// @param elements vector with pointers to SVGEelements.
@@ -227,7 +218,7 @@ namespace svg
 
         /// @brief add element to the elements vector.
         /// @param element element to add to the vector.
-        void add_element(SVGElement* element);
+        void add_element(SVGElement *element);
 
         /// @brief calls for a group to be drawn in the png image.
         /// @param img canvas which will be drawn on.
@@ -241,7 +232,7 @@ namespace svg
         /// @brief calls for a group to be scaled.
         /// @param origin scaling origin.
         /// @param factor scaling factor.
-        void scale(const Point &origin,const int &factor) override;
+        void scale(const Point &origin, const int &factor) override;
 
         /// @brief calls for a group to be moved.
         /// @param p translation offset.
@@ -249,11 +240,10 @@ namespace svg
 
         /// @brief calls for a group to be copied.
         /// @return pointer to the copy of the group.
-        SVGElement* copy();
-        private:
-        std::vector<SVGElement*> elements;
-        
+        SVGElement *copy();
+
+    private:
+        std::vector<SVGElement *> elements;
     };
 }
 #endif
-
