@@ -47,7 +47,7 @@ namespace svg
     /// @brief calls for the SVG reading logic.
     /// @param svg_file SVG input file.
     /// @param dimensions file dimensions.
-    /// @param svg_elements vector that stores input elements.
+    /// @param svg_elements vector that stores all input elements.
     void readSVG(const std::string &svg_file,
                  Point &dimensions,
                  std::vector<SVGElement *> &svg_elements);
@@ -119,7 +119,7 @@ namespace svg
     public:
 
         /// @brief polyline constructor.
-        /// @param points vertices coordinates.
+        /// @param points vector which have polyline vertices coordinates.
         /// @param stroke line color.
         Polyline(const std::vector<Point> &points, const Color &stroke);
 
@@ -156,8 +156,8 @@ namespace svg
     public:
 
         /// @brief line constructor.
-        /// @param start start point.
-        /// @param end end point.
+        /// @param start line start point.
+        /// @param end line end point.
         /// @param stroke line color.
         Line(const Point &start, const Point &end, const Color &stroke);
     };
@@ -167,7 +167,7 @@ namespace svg
     public:
 
         /// @brief polygon constructor.
-        /// @param points vertices coordinates.
+        /// @param points vector which have vertices coordinates.
         /// @param fill fill color.
         Polygon(const std::vector<Point> &points, const Color &fill);
 
@@ -204,7 +204,7 @@ namespace svg
     public:
 
         /// @brief rect constructor.
-        /// @param points rect vertices coordinates.
+        /// @param points vector which have rect vertices coordinates.
         /// @param fill fill color.
         Rect(const std::vector<Point> &points, const Color &fill);
     };
@@ -213,20 +213,20 @@ namespace svg
     {
         public:
 
-        /// @brief group constructor.
-        /// @param Root root element. !!!(CHECK)!!!!!!!!!!!!!!!!!!!!!!!!
+        /// @brief group constructor with root element.
+        /// @param Root XMLElement representing a group to be read.
         /// @param idMap vector of elements with an id and respective id.
         Group(tinyxml2::XMLElement *Root, std::map<std::string, SVGElement*> &idMap);
 
         /// @brief group constructor.
-        /// @param elements vector with group elements.
+        /// @param elements vector with pointers to SVGEelements.
         Group(std::vector<SVGElement *> elements);
 
         /// @brief group destructor.
         ~Group();
 
         /// @brief add element to the elements vector.
-        /// @param element element to add.
+        /// @param element element to add to the vector.
         void add_element(SVGElement* element);
 
         /// @brief calls for a group to be drawn in the png image.
