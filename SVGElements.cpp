@@ -194,25 +194,25 @@ namespace svg
             {
                 new_element = use(child, idMap);
             }
-            if(child_name == "g")
+            else if(child_name == "g")
             {
                 new_element = new Group(child, idMap);
             }
-            if(child_name == "ellipse")
+            else if(child_name == "ellipse")
             {
                 Point center = {child->IntAttribute("cx"),child->IntAttribute("cy")};
                 Point radius = {child->IntAttribute("rx"),child->IntAttribute("ry")};
                 Color fill = parse_color(child->Attribute("fill"));
                 new_element = new Ellipse(fill,center,radius);
             }
-            if(child_name == "circle")
+            else if(child_name == "circle")
             {
                 Point center = {child->IntAttribute("cx"),child->IntAttribute("cy")};
                 int radius = {child->IntAttribute("r")};
                 Color fill = parse_color(child->Attribute("fill"));
                 new_element = new Circle(fill,center,radius);
             }
-            if(child_name == "polyline")
+            else if(child_name == "polyline")
             {
                 Color stroke = parse_color(child->Attribute("stroke"));
                 std::istringstream iss(child->Attribute("points"));
@@ -224,14 +224,14 @@ namespace svg
                 }
                 new_element = new Polyline(points,stroke);
             } 
-            if(child_name == "line")
+            else if(child_name == "line")
             {
                 Color stroke = parse_color(child->Attribute("stroke"));
                 Point start = {child->IntAttribute("x1"),child->IntAttribute("y1")};
                 Point end = {child->IntAttribute("x2"),child->IntAttribute("y2")};
                 new_element = new Line(start,end,stroke);
             }
-            if(child_name == "polygon")
+            else if(child_name == "polygon")
             {
                 Color fill = parse_color(child->Attribute("fill"));
                 std::istringstream iss(child->Attribute("points"));
@@ -251,7 +251,7 @@ namespace svg
                 }
                 new_element = new Polygon(points,fill);
             }
-            if(child_name == "rect")
+            else if(child_name == "rect")
             {
                 Color fill = parse_color(child->Attribute("fill"));
                 int width = child->IntAttribute("width");
